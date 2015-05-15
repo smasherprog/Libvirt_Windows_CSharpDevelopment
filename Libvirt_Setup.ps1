@@ -84,7 +84,8 @@ function Get-ScriptDirectory
 }
 function Get-FilesToLookFor{
     $filestolookfor = New-Object System.Collections.Generic.List[System.String]
-     $filestolookfor.Add("mingw" +$bitness +"-curl-")
+         
+         $filestolookfor.Add("mingw" +$bitness +"-curl-")
     #Search for both gcc 4 and 5 because the versoions can be different, but only one will be found so its not a big deal entering both
     $filestolookfor.Add("mingw" +$bitness +"-gcc-5")
     $filestolookfor.Add("mingw" +$bitness +"-gcc-4")
@@ -102,6 +103,7 @@ function Get-FilesToLookFor{
 
     $filestolookfor.Add("mingw" +$bitness +"-libvirt-1")
 
+    
     $filestolookfor.Add("mingw" +$bitness +"-p11-kit-")
     $filestolookfor.Add("mingw" +$bitness +"-portablexdr-")
     $filestolookfor.Add("mingw" +$bitness +"-nettle-")
@@ -187,11 +189,11 @@ foreach($line in $mirrors | where {$_ -like "http://*" }){
             Write-Host "Deleting " $file 
             [System.IO.File]::Delete($file)
         }
-        $finalfolder = $destindir + "/libvirt-"+$libvirtversion + "_x" + $bitness
+        $finalfolder = $destindir + "/libvirt"
         $pathtotest = $destindir + "/usr/x86_64-w"+$bitness+"-mingw32/sys-root/mingw"
-         if (Test-Path $pathtotest) {
+        if (Test-Path $pathtotest) {
             [System.IO.Directory]::Move($pathtotest, $finalfolder)
-         }
+        }
         
         $pathtotest = $destindir + "/usr"
         if (Test-Path $pathtotest) {
@@ -227,7 +229,22 @@ foreach($line in $mirrors | where {$_ -like "http://*" }){
         $CodeGenCommand = $CodeGenCommand+ "/ClangSharpPInvokeGenerator.exe"
         & $CodeGenCommand $args
 
+        $pathtotest = $finalfolder + "/include"
+        if (Test-Path $pathtotest) {
+           [System.IO.Directory]::Delete($pathtotest, $true)
+        }
 
+        $pathtotest = $finalfolder + "/bin"
+        foreach($file in [System.IO.Directory]::EnumerateFiles($pathtotest,"*.*")) {
+            if([System.IO.Path]::GetExtension($file).ToLower() -ne ".dll"){
+                 [System.IO.File]::Delete($file)
+            } 
+        }
+
+        [System.IO.File]::Move($destindir + "/Libvirt.cs", $finalfolder  + "/Libvirt.cs")
+        [System.IO.File]::Create($finalfolder + "/libvirt-" + $libvirtversion + ".txt")   
+        [System.IO.Directory]::Move($pathtotest, $pathtotest + "_x"+$bitness)
         break  
+
     }
 } 
