@@ -84,8 +84,8 @@ function Get-ScriptDirectory
 }
 function Get-FilesToLookFor{
     $filestolookfor = New-Object System.Collections.Generic.List[System.String]
-         
-         $filestolookfor.Add("mingw" +$bitness +"-curl-")
+    
+    $filestolookfor.Add("mingw" +$bitness +"-curl-")
     #Search for both gcc 4 and 5 because the versoions can be different, but only one will be found so its not a big deal entering both
     $filestolookfor.Add("mingw" +$bitness +"-gcc-5")
     $filestolookfor.Add("mingw" +$bitness +"-gcc-4")
@@ -114,7 +114,6 @@ function Get-FilesToLookFor{
     $filestolookfor.Add("mingw" +$bitness +"-win-iconv-")
     $filestolookfor.Add("mingw" +$bitness +"-winpthreads-")
     $filestolookfor.Add("mingw" +$bitness +"-zlib-")
-
     $filestolookfor
 }
 
@@ -247,9 +246,8 @@ foreach($line in $mirrors | where {$_ -like "http://*" }){
 
         $content = Get-Content $finalcsloc -raw
         $foundinsertp = $content.IndexOf("{")
-        $contlength = $content.Length
- 
-        $content = $content.Substring(0, $foundinsertp+1) + "`r`n#if _WIN64`r`nusing size_t =  System.UInt64;`r`n#else`r`nusing size_t = System.UInt32;`r`n#endif`r`n" + $content.Substring($foundinsertp + 1, $contlength - $foundinsertp-1)
+  
+        $content = $content.Substring(0, $foundinsertp+1) + "`r`n#if _WIN64`r`nusing size_t =  System.UInt64;`r`n#endif`r`n#if _WIN32`r`nusing size_t = System.UInt32;`r`n#endif`r`n" + $content.Substring($foundinsertp + 1, $content.Length - $foundinsertp-1)
         [System.IO.File]::WriteAllText($finalcsloc, $content)
         break  
 
