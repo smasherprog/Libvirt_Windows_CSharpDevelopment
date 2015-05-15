@@ -240,10 +240,17 @@ foreach($line in $mirrors | where {$_ -like "http://*" }){
                  [System.IO.File]::Delete($file)
             } 
         }
-
-        [System.IO.File]::Move($destindir + "/Libvirt.cs", $finalfolder  + "/Libvirt.cs")
+        $finalcsloc= $finalfolder  + "/Libvirt.cs"
+        [System.IO.File]::Move($destindir + "/Libvirt.cs", $finalcsloc)
         [System.IO.File]::Create($finalfolder + "/libvirt-" + $libvirtversion + ".txt")   
         [System.IO.Directory]::Move($pathtotest, $pathtotest + "_x"+$bitness)
+
+        $content = Get-Content $finalcsloc -raw
+        $foundinsertp = $content.IndexOf("{")
+        $contlength = $content.Length
+ 
+        $content = $content.Substring(0, $foundinsertp+1) + "`r`n#if _WIN64`r`nusing size_t =  System.UInt64;`r`n#else`r`nusing size_t = System.UInt32;`r`n#endif`r`n" + $content.Substring($foundinsertp + 1, $contlength - $foundinsertp-1)
+        [System.IO.File]::WriteAllText($finalcsloc, $content)
         break  
 
     }
