@@ -5,6 +5,7 @@
 <p>Add Nuget package to your project.<br/>This can be done by using the package manager console and typeing 'Install-Package Libvirt_Pinvoke' or via the GUI by searching for Libvirt_PInvoke</p>
 <p>Project must be either x86 or x64 build to ensure correct dll's are linked properly. ANY CPU is not a valid build configuration and a compiler error will be generated if you try to build with 'ANY CPU.'</p>
 
+<h3>API:</h3>
 <p>The reference API is here http://libvirt.org/html/. All functions and structs use the same names as are used in the API. <br/>
 All Structures, delegates, enums -- everything except function calls are in the Libvirt namespace.<br/>
 All Function calls are inside the Libvirt.PInvoke namespace<br/>
