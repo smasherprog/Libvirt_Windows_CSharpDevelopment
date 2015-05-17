@@ -85,9 +85,35 @@ function Get-ScriptDirectory
 function Get-FilesToLookFor{
     $filestolookfor = New-Object System.Collections.Generic.List[System.String]
 
+    $filestolookfor.Add("mingw" +$bitness +"-curl-")
+    #Search for both gcc 4 and 5 because the versoions can be different, but only one will be found so its not a big deal entering both
+    $filestolookfor.Add("mingw" +$bitness +"-gcc-5")
+    $filestolookfor.Add("mingw" +$bitness +"-gcc-4")
+    $filestolookfor.Add("mingw" +$bitness +"-gcc-c++5")
+    $filestolookfor.Add("mingw" +$bitness +"-gcc-c++4")
+
+    $filestolookfor.Add("mingw" +$bitness +"-gettext-")
+    $filestolookfor.Add("mingw" +$bitness +"-gmp-")
+    $filestolookfor.Add("mingw" +$bitness +"-gnutls-")
+    $filestolookfor.Add("mingw" +$bitness +"-libxml2-")
+    $filestolookfor.Add("mingw" +$bitness +"-libidn-")
+    $filestolookfor.Add("mingw" +$bitness +"-libtasn1")
+    $filestolookfor.Add("mingw" +$bitness +"-libffi-")
+    $filestolookfor.Add("mingw" +$bitness +"-libssh2-")
+
     $filestolookfor.Add("mingw" +$bitness +"-libvirt-1")
 
+    
+    $filestolookfor.Add("mingw" +$bitness +"-p11-kit-")
+    $filestolookfor.Add("mingw" +$bitness +"-portablexdr-")
+    $filestolookfor.Add("mingw" +$bitness +"-nettle-")
+    $filestolookfor.Add("mingw" +$bitness +"-openssl-")
 
+    $filestolookfor.Add("mingw" +$bitness +"-termcap-")
+
+    $filestolookfor.Add("mingw" +$bitness +"-win-iconv-")
+    $filestolookfor.Add("mingw" +$bitness +"-winpthreads-")
+    $filestolookfor.Add("mingw" +$bitness +"-zlib-")
     $filestolookfor
 }
 
@@ -95,13 +121,13 @@ function Get-FilesToLookFor{
 #assign defaults if none given
 
 if([string]::IsNullOrWhiteSpace($fedoraversion)) {
-    $fedoraversion = "22" #default is version 21
+    $fedoraversion = "rawhide" #default is version 21
 }
 if([string]::IsNullOrWhiteSpace($bitness)) {
-    $bitness = "64" #default is 64 bit
+    $bitness = "32" #default is 64 bit
 } 
 if($bitness -ne "32" -and $bitness -ne "64"){
-    $bitness = "64" #default is 64 bit
+    $bitness = "32" #default is 64 bit
 } 
 
 if([string]::IsNullOrWhiteSpace($destindir)) {
@@ -122,7 +148,7 @@ $result = Invoke-WebRequest $url
 
 $mirrors = $result.Content.Split("`n")
 
-foreach($line in $mirrors | where {$_ -like "http://*" }){
+foreach($line in $mirrors | where {$_ -like "http://*" } ){
     $retstatfromv = CheckURLStatus $line
     if($retstatfromv){
         $baseurl = $line + "Packages/m/"
@@ -203,6 +229,7 @@ foreach($line in $mirrors | where {$_ -like "http://*" }){
         $args += "--libraryPath libvirt-0.dll"
         $args += "--include $finalfolder/include/"
         $args += "--file $finalfolder/include/libvirt/libvirt.h"
+        $args += "--charset Ansi"
         Write-Host "Generating .cs files"
 
         $CodeGenCommand = Get-ScriptDirectory
@@ -215,8 +242,6 @@ foreach($line in $mirrors | where {$_ -like "http://*" }){
         [System.IO.File]::Move($destindir + "/Libvirt.cs", $finalcsloc)
         [System.IO.File]::Create($finalfolder + "/libvirt-" + $libvirtversion + ".txt")   
         [System.IO.Directory]::Move($pathtotest, $pathtotest + "_x"+$bitness)
-        #use Uintptr for size_t
-        (Get-Content $finalcsloc) | foreach-object {$_ -replace "size_t", "UIntPtr"} | Set-Content $finalcsloc
 
         break   
 
