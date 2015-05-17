@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Libvirt_Pinvoke</id>
+    <version>1.2.17</version>
+    <title>Libvirt Pinvoke</title>
+    <authors>Scott Lee</authors>
+    <owners></owners>
+    <description>
+      Libvirt 1.2.13 Build
+      Libvirt supports:
+      The KVM/QEMU Linux hypervisor
+      The Xen hypervisor on Linux and Solaris hosts.
+      The LXC Linux container system
+      The OpenVZ Linux container system
+      The User Mode Linux paravirtualized kernel
+      The VirtualBox hypervisor
+      The VMware ESX and GSX hypervisors
+      The VMware Workstation and Player hypervisors
+      The Microsoft Hyper-V hypervisor
+      The IBM PowerVM hypervisor
+      The Parallels hypervisor
+      The Bhyve hypervisor
+      Virtual networks using bridging, NAT, VEPA and VN-LINK.
+      Storage on IDE/SCSI/USB disks, FibreChannel, LVM, iSCSI, NFS and filesystems
+    </description>
+    <releaseNotes>
+    </releaseNotes>
+    <summary>
+      Libvirt PInvoke is a set of pre compiled dlls for c# development</summary>
+    <language>en-US</language>
+    <projectUrl>https://github.com/smasherprog/Libvirt_Windows_CSharpDevelopment</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>http://opensource.org/licenses/Apache-2.0</licenseUrl>
+    <copyright>Copyright  2015</copyright>
+    <references></references>
+    <tags>PInvoke c# .Net libvirt Virtualization</tags>
+  </metadata>
+
+</package>

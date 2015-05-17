@@ -1,5 +1,5 @@
 param(
-    [string]$fedoraversion, [string]$bitness, [string]$destindir
+     [string]$bitness, [string]$fedoraversion, [string]$destindir
 )
 
 function Using-Object
@@ -84,36 +84,10 @@ function Get-ScriptDirectory
 }
 function Get-FilesToLookFor{
     $filestolookfor = New-Object System.Collections.Generic.List[System.String]
-    
-    $filestolookfor.Add("mingw" +$bitness +"-curl-")
-    #Search for both gcc 4 and 5 because the versoions can be different, but only one will be found so its not a big deal entering both
-    $filestolookfor.Add("mingw" +$bitness +"-gcc-5")
-    $filestolookfor.Add("mingw" +$bitness +"-gcc-4")
-    $filestolookfor.Add("mingw" +$bitness +"-gcc-c++5")
-    $filestolookfor.Add("mingw" +$bitness +"-gcc-c++4")
-
-    $filestolookfor.Add("mingw" +$bitness +"-gettext-")
-    $filestolookfor.Add("mingw" +$bitness +"-gmp-")
-    $filestolookfor.Add("mingw" +$bitness +"-gnutls-")
-    $filestolookfor.Add("mingw" +$bitness +"-libxml2-")
-    $filestolookfor.Add("mingw" +$bitness +"-libidn-")
-    $filestolookfor.Add("mingw" +$bitness +"-libtasn1")
-    $filestolookfor.Add("mingw" +$bitness +"-libffi-")
-    $filestolookfor.Add("mingw" +$bitness +"-libssh2-")
 
     $filestolookfor.Add("mingw" +$bitness +"-libvirt-1")
 
-    
-    $filestolookfor.Add("mingw" +$bitness +"-p11-kit-")
-    $filestolookfor.Add("mingw" +$bitness +"-portablexdr-")
-    $filestolookfor.Add("mingw" +$bitness +"-nettle-")
-    $filestolookfor.Add("mingw" +$bitness +"-openssl-")
 
-    $filestolookfor.Add("mingw" +$bitness +"-termcap-")
-
-    $filestolookfor.Add("mingw" +$bitness +"-win-iconv-")
-    $filestolookfor.Add("mingw" +$bitness +"-winpthreads-")
-    $filestolookfor.Add("mingw" +$bitness +"-zlib-")
     $filestolookfor
 }
 
@@ -139,7 +113,10 @@ if([string]::IsNullOrWhiteSpace($destindir)) {
         $destindir = Get-ScriptDirectory #get working dir if empty
     }  
 }
-
+$testoutputdir = $destindir + "/libvirt"
+if(Test-Path $testoutputdir){
+  throw "the destination folder Libvirt cannot exist, please run this script from a directory that does not contain  libvirt/"
+}
 $url = "https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-"+ $fedoraversion + "&arch=x86_64"
 $result = Invoke-WebRequest $url
 
@@ -189,8 +166,13 @@ foreach($line in $mirrors | where {$_ -like "http://*" }){
             [System.IO.File]::Delete($file)
         }
         $finalfolder = $destindir + "/libvirt"
-        $pathtotest = $destindir + "/usr/x86_64-w"+$bitness+"-mingw32/sys-root/mingw"
-        if (Test-Path $pathtotest) {
+        if($bitness -eq "64"){
+            $pathtotest = $destindir + "/usr/x86_64-w64-mingw32/sys-root/mingw"
+        } else {
+            $pathtotest = $destindir + "/usr/i686-w64-mingw32/sys-root/mingw"
+        }
+ 
+       if (Test-Path $pathtotest) {
             [System.IO.Directory]::Move($pathtotest, $finalfolder)
         }
         
@@ -210,46 +192,33 @@ foreach($line in $mirrors | where {$_ -like "http://*" }){
         if (Test-Path $pathtotest) {
            [System.IO.Directory]::Delete($pathtotest, $true)
         }
+
         Write-Host "All Done, you should now have all the DLL's required for building a libvirt application on windows!"
         Write-Host "There are extra exe and other files, which can be ignored, you just need the dll's"
         Write-Host "Generating C# PInvoke files from Libvirt Headers"
-        $libvirtheaderfiles = $finalfolder + "/include/libvirt"
+ 
         $args = @()
         $args += "--m PInvoke --p clang_ --namespace Libvirt"
         $args += "--output Libvirt.cs"
         $args += "--libraryPath libvirt-0.dll"
-        $args += "--include $libvirtheaderfiles"
-
+        $args += "--include $finalfolder/include/"
+        $args += "--file $finalfolder/include/libvirt/libvirt.h"
         Write-Host "Generating .cs files"
-        foreach($file in [System.IO.Directory]::EnumerateFiles($libvirtheaderfiles,"*.h")) {
-            $args += "--file $file"
-        }   
+
         $CodeGenCommand = Get-ScriptDirectory
         $CodeGenCommand = $CodeGenCommand+ "/ClangSharpPInvokeGenerator.exe"
         & $CodeGenCommand $args
 
-        $pathtotest = $finalfolder + "/include"
-        if (Test-Path $pathtotest) {
-           [System.IO.Directory]::Delete($pathtotest, $true)
-        }
-
         $pathtotest = $finalfolder + "/bin"
-        foreach($file in [System.IO.Directory]::EnumerateFiles($pathtotest,"*.*")) {
-            if([System.IO.Path]::GetExtension($file).ToLower() -ne ".dll"){
-                 [System.IO.File]::Delete($file)
-            } 
-        }
+
         $finalcsloc= $finalfolder  + "/Libvirt.cs"
         [System.IO.File]::Move($destindir + "/Libvirt.cs", $finalcsloc)
         [System.IO.File]::Create($finalfolder + "/libvirt-" + $libvirtversion + ".txt")   
         [System.IO.Directory]::Move($pathtotest, $pathtotest + "_x"+$bitness)
+        #use Uintptr for size_t
+        (Get-Content $finalcsloc) | foreach-object {$_ -replace "size_t", "UIntPtr"} | Set-Content $finalcsloc
 
-        $content = Get-Content $finalcsloc -raw
-        $foundinsertp = $content.IndexOf("{")
-  
-        $content = $content.Substring(0, $foundinsertp+1) + "`r`n#if _WIN64`r`nusing size_t =  System.UInt64;`r`n#endif`r`n#if _WIN32`r`nusing size_t = System.UInt32;`r`n#endif`r`n" + $content.Substring($foundinsertp + 1, $content.Length - $foundinsertp-1)
-        [System.IO.File]::WriteAllText($finalcsloc, $content)
-        break  
+        break   
 
     }
 } 
