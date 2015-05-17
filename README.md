@@ -1,5 +1,6 @@
 <h3>Preamble:</h3>
 <p>This library is designed to be a 1 to 1 mapping from c# to the libvirt C API maintaining naming convention and adding no additional helper functions.</p>
+<h5>Libvirt Build Version: 1.2.13</h5>
 <h3>Nuget Package Usage:</h3>
 <ul>
 <li>
