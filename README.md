@@ -37,10 +37,11 @@
  </li>
    <li>
  All Function calls are inside the Libvirt.PInvoke namespace
-  <li>
-Ror example the libvirt-host api listing has a function named virTypedParamsAddDouble. This function can be called in c# via Libvirt.PInvoke.virTypedParamsAddDouble(....)
+ <ul>
+ <li>
+For example the libvirt-host api listing has a function named virTypedParamsAddDouble. This function can be called in c# via Libvirt.PInvoke.virTypedParamsAddDouble(....)
  </li>
- </li>
+ </ul>
 </ul>
 <br/> 
 
