@@ -8,25 +8,6 @@
 All Structures, delegates, enums -- everything except function calls are in the Libvirt namespace.<br/>
 All Function calls are inside the Libvirt.PInvoke namespace<br/>
 </p>
-For example, in the libvirt-host.h file is the following<br/>
-<br/>
-		# define VIR_SECURITY_LABEL_BUFLEN (4096 + 1)<br/>
-<br/>
-		typedef struct _virSecurityLabel virSecurityLabel;<br/>
-<br/>
-		struct _virSecurityLabel {<br/>
-			char label[VIR_SECURITY_LABEL_BUFLEN];    /* security label string */<br/>
-			int enforcing;                            /* 1 if security policy is being enforced for domain */<br/>
-		};<br/>
-<br/>
-And the generated C# code is<br/>
-<br/>
-  [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Auto, CharSet =       System.Runtime.InteropServices.CharSet.Ansi)]<br/>
-		public partial struct _virSecurityLabel<br/>
-		{<br/>
-			[MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst = 4097)] public string @label;<br/>
-			public int @enforcing;<br/>
-		}<br/>
-<br/>
-
+For example, in the libvirt-host api listing, there is a a type struct virSecurityModel, it can be referenced within your c# code as Libvirt.virSecurityModel<br/> 
+Functions are in the PInvoke namespace, for example the libvirt-host api listing has a function named virTypedParamsAddDouble. This function can be called in c# via Libvirt.PInvoke.virTypedParamsAddDouble(....)
 
