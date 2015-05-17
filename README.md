@@ -1,4 +1,5 @@
-<h3>This Repo contains tools used to create a libvirt Nuget package for C#</h3>
+<h3>Preamble:</h3>
+<p>This library is designed to be a 1 to 1 mapping from c# to the libvirt C API maintaining naming convention and adding no additional helper functions.</p>
 <h3>Nuget Package Usage:</h3>
 
 <p>Add Nuget package to your project.</p>
