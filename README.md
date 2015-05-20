@@ -26,7 +26,7 @@
 ***
 <ul>
 <li>
-Build against .net 3.5 or lower, otherwise the debugger will think SEH exceptions are thrown and terminate the program.
+Debug against .net 3.5 or lower, otherwise the debugger will think SEH exceptions are thrown and terminate the program.
 </li>
 <li>With .net 4.0, the method of handling exceptions changed and this causes debugging within visual studio using 4.0 >= to not work correctly with libvirt Mingw builds.</li>
 <li>Running applications build against libvirt outside of Visual studio debugger works fine and no exceptions are thrown, its only within the debugger using 4.0 >=</li>
