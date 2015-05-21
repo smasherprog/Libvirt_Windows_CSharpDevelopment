@@ -61,11 +61,11 @@
     <Content Include="content\x64\libffi-6.dll" />
     <Content Include="content\x64\libgcc_s_seh-1.dll" />
     <Content Include="content\x64\libgmp-10.dll" />
-    <Content Include="content\x64\libgnutls-30.dll" />
-    <Content Include="content\x64\libhogweed-4-1.dll" />
+    <Content Include="content\x64\libgnutls-28.dll" />
+    <Content Include="content\x64\libhogweed-2-5.dll" />
     <Content Include="content\x64\libidn-11.dll" />
     <Content Include="content\x64\libintl-8.dll" />
-    <Content Include="content\x64\libnettle-6-1.dll" />
+    <Content Include="content\x64\libnettle-4-7.dll" />
     <Content Include="content\x64\libp11-kit-0.dll" />
     <Content Include="content\x64\libportablexdr-0.dll" />
     <Content Include="content\x64\libssh2-1.dll" />
@@ -84,11 +84,11 @@
     <Content Include="content\x86\libffi-6.dll" />
     <Content Include="content\x86\libgcc_s_sjlj-1.dll" />
     <Content Include="content\x86\libgmp-10.dll" />
-    <Content Include="content\x86\libgnutls-30.dll" />
-    <Content Include="content\x86\libhogweed-4-1.dll" />
+    <Content Include="content\x86\libgnutls-28.dll" />
+    <Content Include="content\x86\libhogweed-2-5.dll" />
     <Content Include="content\x86\libidn-11.dll" />
     <Content Include="content\x86\libintl-8.dll" />
-    <Content Include="content\x86\libnettle-6-1.dll" />
+    <Content Include="content\x86\libnettle-4-7.dll" />
     <Content Include="content\x86\libp11-kit-0.dll" />
     <Content Include="content\x86\libportablexdr-0.dll" />
     <Content Include="content\x86\libssh2-1.dll" />
@@ -121,8 +121,8 @@
     <Folder Include="src\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="lib\net40\Libvirt_Pinvoke.dll" />
-    <Content Include="lib\net40\Libvirt_Pinvoke.pdb" />
+    <Content Include="lib\net20\Libvirt_Pinvoke.dll" />
+    <Content Include="lib\net20\Libvirt_Pinvoke.pdb" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

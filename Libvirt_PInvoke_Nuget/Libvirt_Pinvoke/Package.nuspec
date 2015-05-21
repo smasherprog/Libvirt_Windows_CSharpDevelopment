@@ -2,12 +2,12 @@
 <package >
   <metadata>
     <id>Libvirt_Pinvoke</id>
-    <version>1.2.17.01</version>
+    <version>1.2.17.04</version>
     <title>Libvirt Pinvoke</title>
     <authors>Scott Lee</authors>
     <owners></owners>
     <description>
-      Libvirt 1.2.15 Build
+      Libvirt 1.2.13 Build
       Libvirt supports:
       The KVM/QEMU Linux hypervisor
       The Xen hypervisor on Linux and Solaris hosts.

@@ -121,10 +121,10 @@ function Get-FilesToLookFor{
 #assign defaults if none given
 
 if([string]::IsNullOrWhiteSpace($fedoraversion)) {
-    $fedoraversion = "rawhide" #default is version 21
+    $fedoraversion = "22" #default is version 22
 }
 if([string]::IsNullOrWhiteSpace($bitness)) {
-    $bitness = "32" #default is 64 bit
+    $bitness = "64" #default is 64 bit
 } 
 if($bitness -ne "32" -and $bitness -ne "64"){
     $bitness = "32" #default is 64 bit
@@ -150,9 +150,9 @@ $mirrors = $result.Content.Split("`n")
 
 foreach($line in $mirrors | where {$_ -like "http://*" } ){
     $retstatfromv = CheckURLStatus $line
+    
     if($retstatfromv){
         $baseurl = $line + "Packages/m/"
-
         $result = Invoke-WebRequest $baseurl 
         $webclient = New-Object System.Net.WebClient
         $filestolookfor = Get-FilesToLookFor
