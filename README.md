@@ -1,3 +1,5 @@
+<h3>EXAMPLES:</h3>
+<p>Check out how to use this library here: https://github.com/smasherprog/VM_Manager</p>
 <h3>Preamble:</h3>
 <p>This library is designed to be a 1 to 1 mapping from c# to the libvirt C API maintaining naming convention and adding no additional helper functions.</p>
 <h5>Libvirt Build Version: 1.2.13</h5>
@@ -23,15 +25,8 @@
 </ul>
 
 <h5>WHEN DEBUGGING IN VISUAL STUDIO</h5>
-***
-<ul>
-<li>
-Debug against .net 3.5 or lower, otherwise the debugger will think SEH exceptions are thrown and terminate the program.
-</li>
-<li>With .net 4.0, the method of handling exceptions changed and this causes debugging within visual studio using 4.0 >= to not work correctly with libvirt Mingw builds.</li>
-<li>Running applications built against libvirt outside of Visual studio debugger works fine and no exceptions are thrown, its only within the debugger using 4.0 >=</li>
-<li>Perhaps the makers of the libvirt library will make their code base buildable natively on windows. . . . .</li>
-</ul>
+***<p>
+	When running this library in Visual studio in debugging, some functions might throw an erroneous SEH exception that will terminate the program. One fix is to debug in 3.5, which does not throw these. When running outside of the visual studio debugger, no exceptions are thrown -- this is a visual studio debugging issue.</p>
 ***
 <h3>API:</h3>
 <ul>
