@@ -121,7 +121,7 @@ function Get-FilesToLookFor{
 #assign defaults if none given
 
 if([string]::IsNullOrWhiteSpace($fedoraversion)) {
-    $fedoraversion = "22" #default is version 22
+    $fedoraversion = "rawhide" #default is version 22
 }
 if([string]::IsNullOrWhiteSpace($bitness)) {
     $bitness = "64" #default is 64 bit

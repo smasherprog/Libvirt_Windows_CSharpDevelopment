@@ -1,5 +1,8 @@
-﻿Preamble:
-This library is designed to be a 1 to 1 mapping from c# to the libvirt C API maintaining naming convention and adding no additional helper functions.
+﻿EXAMPLE SOLUTION
+	https://github.com/smasherprog/VM_Manager
+
+Preamble:
+This library is designed to be a 1 to 1 mapping from c# to the libvirt C API.
 
 Libvirt Build Version: 1.2.13
 
@@ -7,10 +10,7 @@ Project must be either x86 or x64 build to ensure correct dll's are linked prope
 
 WHEN DEBUGGING IN VISUAL STUDIO
 ***
-	Build against .net 3.5 or lower, otherwise the debugger will think SEH exceptions are thrown and terminate the program.
-	With .net 4.0, the method of handling exceptions changed and this causes debugging within visual studio using 4.0 >= to not work correctly with libvirt Mingw builds.
-	Running applications build against libvirt outside of Visual studio debugger works fine and no exceptions are thrown, its only within the debugger using 4.0 >=
-	Perhaps the makers of the libvirt library will make their code base buildable natively on windows. . . . .
+	When running this library in Visual studio in debugging, some functions might throw an erroneous SEH exception that will terminate the program. One fix is to debug in 3.5, which does not throw these. Try out different .net versions to see which works. When running outside of the visual studio debugger, no exceptions are thrown -- this is a visual studio error.
 ***
 
 API:
@@ -19,3 +19,6 @@ All Structures, delegates, enums -- everything except function calls are in the 
 For example, in the libvirt-host api listing, there is a a type struct virSecurityModel, it can be referenced within your c# code as Libvirt.virSecurityModel
 All Function calls are inside the Libvirt.PInvoke namespace
 For example the libvirt-host api listing has a function named virTypedParamsAddDouble. This function can be called in c# via Libvirt.PInvoke.virTypedParamsAddDouble(....)
+
+Beginning work on an API namespace which will handle the marshaling, allocating and deallocating resources between the dll layer and c# layer.
+It is in development right now though, so not all functions are in the API namespace yet -- I am slowly adding them.
