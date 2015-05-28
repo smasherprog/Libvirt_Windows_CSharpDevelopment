@@ -372,7 +372,7 @@ namespace Libvirt
     [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
     public struct _virDomainInfo
     {
-        public char @state;
+        public virDomainState @state;
         public int @maxMem;
         public int @memory;
         public ushort @nrVirtCpu;
@@ -1213,7 +1213,7 @@ namespace Libvirt
         @VIR_NODE_ALLOC_PAGES_SET = 1,
     }
 
-    public enum virDomainState : int
+    public enum virDomainState : byte
     {
         @VIR_DOMAIN_NOSTATE = 0,
         @VIR_DOMAIN_RUNNING = 1,
@@ -2842,7 +2842,7 @@ namespace Libvirt
         public static int virConnectListAllDomains(virConnectPtr conn, out virDomainPtr[] domains, virConnectListAllDomainsFlags flags)
         {
             IntPtr ptr = IntPtr.Zero;
-            var ret = PInvoke.virConnectListAllDomains(conn, ptr, (uint)flags);
+            var ret = PInvoke.virConnectListAllDomains(conn, ref ptr, (uint)flags);
             if(ret >= 0)
             {
                 domains = new virDomainPtr[ret];
@@ -2926,8 +2926,12 @@ namespace Libvirt
         public static int virDomainFree(virDomainPtr @domain)
         {
             return PInvoke.virDomainFree(@domain);
+        }   
+        public static int virDomainGetInfo(virDomainPtr @domain, out _virDomainInfo info)
+        {
+            info = new _virDomainInfo();
+            return PInvoke.virDomainGetInfo(@domain, ref info);
         }
-
 
     }
 
@@ -3321,7 +3325,7 @@ namespace Libvirt
         public static extern IntPtr virDomainScreenshot(virDomainPtr @domain, virStreamPtr @stream, uint @screen, uint @flags);
 
         [DllImport(libraryPath, EntryPoint = "virDomainGetInfo", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
-        public static extern int virDomainGetInfo(virDomainPtr @domain, virDomainInfoPtr @info);
+        public static extern int virDomainGetInfo(virDomainPtr @domain, ref _virDomainInfo @info);
 
         [DllImport(libraryPath, EntryPoint = "virDomainGetState", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
         public static extern int virDomainGetState(virDomainPtr @domain, IntPtr @state, IntPtr @reason, uint @flags);
@@ -3463,7 +3467,7 @@ namespace Libvirt
         public static extern int virConnectListDefinedDomains(virConnectPtr @conn, IntPtr @names, int @maxnames);
 
         [DllImport(libraryPath, EntryPoint = "virConnectListAllDomains", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
-        public static extern int virConnectListAllDomains(virConnectPtr @conn, [Out] IntPtr @domains, uint @flags);
+        public static extern int virConnectListAllDomains(virConnectPtr @conn, ref IntPtr @domains, uint @flags);
 
         [DllImport(libraryPath, EntryPoint = "virDomainCreate", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
         public static extern int virDomainCreate(virDomainPtr @domain);
