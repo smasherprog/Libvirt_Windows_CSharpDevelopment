@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Libvirt_Pinvoke</RootNamespace>
     <AssemblyName>Libvirt_Pinvoke</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -101,8 +101,8 @@
     <Content Include="content\x86\libxml2-2.dll" />
     <Content Include="content\x86\virsh.exe" />
     <Content Include="content\x86\zlib1.dll" />
-    <Content Include="lib\net20\Libvirt_Pinvoke.dll" />
-    <Content Include="lib\net20\Libvirt_Pinvoke.pdb" />
+    <Content Include="lib\net40\Libvirt_Pinvoke.dll" />
+    <Content Include="lib\net40\Libvirt_Pinvoke.pdb" />
     <Content Include="readme.txt" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -10,7 +10,7 @@ Project must be either x86 or x64 build to ensure correct dll's are linked prope
 
 WHEN DEBUGGING IN VISUAL STUDIO
 ***
-	When running this library in Visual studio in debugging, some functions might throw an erroneous SEH exception that will terminate the program. One fix is to debug in 3.5, which does not throw these. Try out different .net versions to see which works. When running outside of the visual studio debugger, no exceptions are thrown -- this is a visual studio error.
+	When running this library in Visual studio in debugging, the virConnectClose() will throw an SEH exception, just surround with a try catch block. Additionally, when connecting, if the server cannot be contacted, an SEH exception will be thrown as well. These are not thrown in Release Mode, only debug mode --no idea why, ask the Libvirt devs . . . 
 ***
 
 API:
