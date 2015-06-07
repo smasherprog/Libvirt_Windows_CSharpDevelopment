@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Libvirt
+namespace Libvirt.CS_Objects
 {
     public class Interface : IDisposable
     {
@@ -18,10 +18,7 @@ namespace Libvirt
         {
             return API.virInterfaceCreate(_virInterfacePtr);
         }
-        public static Interface virInterfaceDefineXML(Host conn, string xml)
-        {
-            return new Interface(API.virInterfaceDefineXML(conn.ConnectPtr, xml));
-        }
+
         public int virInterfaceDestroy()
         {
             return API.virInterfaceDestroy(_virInterfacePtr);
@@ -42,14 +39,7 @@ namespace Libvirt
         {
             return API.virInterfaceIsActive(_virInterfacePtr);
         }
-        public static Interface virInterfaceLookupByMACString(Host conn, string mac)
-        {
-            return new Interface(API.virInterfaceLookupByMACString(conn.ConnectPtr, mac));
-        }
-        public static Interface virInterfaceLookupByName(Host conn, string name)
-        {
-            return new Interface(API.virInterfaceLookupByName(conn.ConnectPtr, name));
-        }
+
         public int virInterfaceUndefine()
         {
             return API.virInterfaceUndefine(_virInterfacePtr);
