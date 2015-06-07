@@ -33,9 +33,8 @@
 </ul>
 
 <h5>WHEN DEBUGGING IN VISUAL STUDIO</h5>
-***<p>
-	When running this library in Visual studio in debugging, some functions might throw an erroneous SEH exception that will terminate the program. Just wrap in try catch and continue. When running outside of the visual studio debugger, no exceptions are thrown -- this is a visual studio debugging issue.</p>
-***
+<p>When running this library in Visual studio in debugging, some functions might throw an erroneous SEH exception that will terminate the program. Just wrap in try catch and continue. When running outside of the visual studio debugger, no exceptions are thrown -- this is a visual studio debugging issue.</p>
+
 <h3>API/Pinvoke Namespaces:</h3>
 <ul>
  <li>
