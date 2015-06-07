@@ -621,8 +621,6 @@ namespace Libvirt
     }
 
 
-
-
     public struct virConnectPtr : IDisposable
     {
         public IntPtr Pointer;
@@ -1383,7 +1381,6 @@ namespace Libvirt
 
     public enum virDomainMigrateFlags : uint
     {
-        @VIR_DEFAULT = 0,
         @VIR_MIGRATE_LIVE = 1,
         @VIR_MIGRATE_PEER2PEER = 2,
         @VIR_MIGRATE_TUNNELLED = 4,
@@ -1924,7 +1921,7 @@ namespace Libvirt
     public enum virDomainSetUserPasswordFlags : uint
     {
         @VIR_DEFAULT = 0,
-        @VIR_DOMAIN_PASSWORD_ENCRYPTED	=	1	//the password is already encrypted
+        @VIR_DOMAIN_PASSWORD_ENCRYPTED = 1	//the password is already encrypted
     }
     public enum virSchedParameterType : uint
     {
@@ -2190,7 +2187,6 @@ namespace Libvirt
 
     public enum virConnectListAllStoragePoolsFlags : uint
     {
-        @VIR_DEFAULT = 0,
         @VIR_CONNECT_LIST_STORAGE_POOLS_INACTIVE = 1,
         @VIR_CONNECT_LIST_STORAGE_POOLS_ACTIVE = 2,
         @VIR_CONNECT_LIST_STORAGE_POOLS_PERSISTENT = 4,
@@ -2242,22 +2238,15 @@ namespace Libvirt
     }
     public static class API
     {
-        private static readonly int MaxStringLength = 1024;
-        private static readonly int VIR_UUID_BUFLEN = 16;
-        private static readonly int VIR_UUID_STRING_BUFLEN = 37;
-
-        [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr malloc(IntPtr size);
-
-        [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void free(IntPtr ptr);
-
-        [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr calloc(IntPtr num, IntPtr size);
-
-        [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr realloc(IntPtr ptr, IntPtr size);
-        private static string[] ptrToStringArray(IntPtr stringPtr, int stringCount, Action<IntPtr> func)
+        public static readonly int MaxStringLength = 1024;
+        public static readonly int VIR_UUID_BUFLEN = 16;
+        public static readonly int VIR_UUID_STRING_BUFLEN = 37;
+        public static virFreeCallback _Dummy_virFreeCallback;//dummy variable to prevent the GC from collecting the function
+        static API()
+        {
+            _Dummy_virFreeCallback = DummyvirFreeCallback_Func;//will be assigned once on first static function call
+        }
+        public static string[] ptrToStringArray(IntPtr stringPtr, int stringCount, Action<IntPtr> func)
         {
             string[] members = new string[stringCount];
             for (int i = 0; i < stringCount; ++i)
@@ -2268,19 +2257,26 @@ namespace Libvirt
             }
             return members;
         }
+        public static void DummyvirFreeCallback_Func(IntPtr dummy)
+        {
 
-        private static int NameArrayHandler(virConnectPtr conn, out string[] @names, int @maxnames, Func<virConnectPtr, IntPtr, int, int> func)
+        }
+        public static int NameArrayHandler(virConnectPtr conn, out string[] @names, int @maxnames, Func<virConnectPtr, IntPtr, int, int> func)
         {
             IntPtr namesPtr = Marshal.AllocHGlobal(MaxStringLength);
             int count = func(conn, namesPtr, maxnames);
             if (count > 0)
-                names = ptrToStringArray(namesPtr, count, a => { free(a); });
+                names = ptrToStringArray(namesPtr, count, a => { PInvoke.free(a); });
             else
             {
                 names = new string[0];
             }
             Marshal.FreeHGlobal(namesPtr);
             return count;
+        }
+        public static bool IsBitSet(byte b, int pos)
+        {
+            return (b & (1 << pos)) != 0;
         }
         public static virError MarshalErrorPtr(virErrorPtr ptr)
         {
@@ -2299,14 +2295,23 @@ namespace Libvirt
             nerror.int2 = olderr.int2;
             return nerror;
         }
+        public static string virConnectBaselineCPU(virConnectPtr conn, string[] xmlCPUs, uint ncpus, virConnectBaselineCPUFlags flags)
+        {
+            return PInvoke.virConnectBaselineCPU(conn, xmlCPUs, ncpus, (uint)flags);
+        }
 
         public static int virConnectClose(virConnectPtr @conn)
         {
             return PInvoke.virConnectClose(@conn);
         }
-        public static int virConnectCompareCPU(virConnectPtr @conn, out string @xmlDesc, uint @flags)
+        public static int virConnectCompareCPU(virConnectPtr @conn, out string @xmlDesc, virConnectCompareCPUFlags @flags)
         {
-            return PInvoke.virConnectCompareCPU(@conn, out @xmlDesc, @flags);
+            return PInvoke.virConnectCompareCPU(@conn, out @xmlDesc, (uint)@flags);
+        }
+        public static int virConnectGetCPUModelNames(virConnectPtr conn, string arch, out string[] models, uint flags = 0)
+        {
+            throw new NotImplementedException();
+
         }
 
         public static string virConnectGetCapabilities(virConnectPtr @conn)
@@ -2323,6 +2328,11 @@ namespace Libvirt
             libVer = 0;
             return PInvoke.virConnectGetLibVersion(conn, ref libVer);
         }
+        public static int virConnectGetMaxVcpus(virConnectPtr conn, string type)
+        {
+            return PInvoke.virConnectGetMaxVcpus(conn, type);
+        }
+
         public static string virConnectGetSysinfo(virConnectPtr @conn, uint @flags = 0)
         {
             return PInvoke.virConnectGetSysinfo(@conn, @flags);
@@ -2370,15 +2380,30 @@ namespace Libvirt
         {
             return PInvoke.virConnectRef(@conn);
         }
-
-
-        private static bool IsBitSet(byte b, int pos)
+        public static int virConnectRegisterCloseCallback(virConnectPtr conn, virConnectCloseFunc cb, IntPtr opaque, virFreeCallback freecb)
         {
-            return (b & (1 << pos)) != 0;
+            return PInvoke.virConnectRegisterCloseCallback(conn, cb, opaque, freecb);
+        }
+        public static int virConnectSetKeepAlive(virConnectPtr conn, int interval, uint count)
+        {
+            return PInvoke.virConnectSetKeepAlive(conn, interval, count);
+        }
+        public static int virConnectUnregisterCloseCallback(virConnectPtr conn, virConnectCloseFunc cb)
+        {
+            return PInvoke.virConnectUnregisterCloseCallback(conn, cb);
+        }
+        public static int virGetVersion(ref uint[] libVer, string type = null, uint[] typeVer = null)
+        {
+            return PInvoke.virGetVersion(ref libVer, type, ref typeVer);
+        }
+        public static int virNodeAllocPages(virConnectPtr conn, uint npages, uint[] pageSizes, ulong[] pageCounts, int startCell, uint cellCount, virNodeAllocPagesFlags flags)
+        {
+            Debug.Assert(pageSizes.Length == pageCounts.Length && pageSizes.Length == npages);
+            return PInvoke.virNodeAllocPages(conn, npages, pageSizes, pageCounts, startCell, cellCount, (uint)flags);
+
         }
         public static int virNodeGetCPUMap(virConnectPtr @conn, out bool[] cpumap, out int cpucount, uint flags = 0)
         {
-
             IntPtr cpumapptr = IntPtr.Zero;
             cpucount = 0;
             var succ = PInvoke.virNodeGetCPUMap(@conn, ref cpumapptr, ref cpucount, 0);
@@ -2394,18 +2419,10 @@ namespace Libvirt
                 var outarrpos = i - (bytepos * 8);
                 cpumap[outarrpos] = IsBitSet(by[bytepos], outarrpos);
             }
-            free(cpumapptr);
+            PInvoke.free(cpumapptr);
             return succ;
 
         }
-
-        public static int virNodeGetInfo(virConnectPtr @conn, out _virNodeInfo @info)
-        {
-            @info = new _virNodeInfo();
-            return PInvoke.virNodeGetInfo(@conn, ref info);
-        }
-
-
         public static int virNodeGetCPUStats(virConnectPtr @conn, int @cpuNum /*-1 for all cpus on host */, out _virNodeCPUStats[] @params, int @nparams, uint @flags = 0)
         {
             //allocate enough space for all cpus
@@ -2437,14 +2454,41 @@ namespace Libvirt
                 return -1;
             }
         }
-
-
-
+        public static int virNodeGetCellsFreeMemory(virConnectPtr conn, ulong[] freeMems, int startCell, int maxCells)
+        {
+            return PInvoke.virNodeGetCellsFreeMemory(conn, freeMems, startCell, maxCells);
+        }
         public static ulong virNodeGetFreeMemory(virConnectPtr @conn)
         {
             return PInvoke.virNodeGetFreeMemory(conn);
         }
-        public static int virNodeGetMemoryStats(virConnectPtr @conn, int @cellNum/*-1 for all memory info on host */, out _virNodeMemoryStats[] @params, int @nparams, uint @flags = 0)
+        public static int virNodeGetFreePages(virConnectPtr conn, uint npages, uint[] pages, int startCell, uint cellCount, ulong[] counts, uint flags = 0)
+        {
+            return PInvoke.virNodeGetFreePages(conn, npages, pages, startCell, cellCount, counts, flags);
+        }
+
+        public static int virNodeGetInfo(virConnectPtr @conn, out _virNodeInfo @info)
+        {
+            @info = new _virNodeInfo();
+            return PInvoke.virNodeGetInfo(@conn, ref info);
+        }
+        public static int virNodeGetMemoryParameters(virConnectPtr conn, out _virTypedParameter[] pars, ref int nparams, uint flags = 0)
+        {
+            nparams = 0;
+            var ret = PInvoke.virNodeGetMemoryParameters(conn, IntPtr.Zero, ref nparams, flags);
+            if (nparams > 0)
+            {
+                pars = new _virTypedParameter[nparams];
+                ret = PInvoke.virNodeGetMemoryParameters(conn, pars, ref nparams, flags);
+            }
+            else
+            {
+                nparams = 0;
+                pars = new _virTypedParameter[0];
+            }
+            return ret;
+        }
+        public static int virNodeGetMemoryStats(virConnectPtr @conn, int @cellNum/*-1 for all memory info on host */, out _virNodeMemoryStats[] @params, ref int @nparams, uint @flags = 0)
         {
             if (@cellNum == (int)virNodeGetMemoryStatsAllCells.VIR_NODE_MEMORY_STATS_ALL_CELLS)
             {
@@ -2474,12 +2518,43 @@ namespace Libvirt
                 return -1;
             }
         }
-
+        public static int virNodeGetSecurityModel(virConnectPtr conn, out _virSecurityModel secmodel)
+        {
+            secmodel = new _virSecurityModel();
+            return PInvoke.virNodeGetSecurityModel(conn, ref secmodel);
+        }
+        public static int virNodeSetMemoryParameters(virConnectPtr conn, _virTypedParameter[] pars, int nparams, uint flags = 0)
+        {
+            return PInvoke.virNodeSetMemoryParameters(conn, pars, nparams, flags);
+        }
+        public static int virNodeSuspendForDuration(virConnectPtr conn, uint target, ulong duration, uint flags = 0)
+        {
+            return PInvoke.virNodeSuspendForDuration(conn, target, duration, flags);
+        }
 
 
 
         //INTERFACES
 
+        public static int virConnectListAllInterfaces(virConnectPtr conn, out virInterfacePtr[] ifaces, virConnectListAllInterfacesFlags flags)
+        {
+            IntPtr faces = IntPtr.Zero;
+            var ret = PInvoke.virConnectListAllInterfaces(conn, ref faces, (uint)flags);
+            if (ret > -1)
+            {
+                ifaces = new virInterfacePtr[ret];
+                for (var i = 0; i < ret; i++)
+                {
+                    ifaces[i] = new virInterfacePtr();
+                    ifaces[i].Pointer = Marshal.ReadIntPtr(faces, i * IntPtr.Size);
+                }
+            }
+            else
+            {
+                ifaces = new virInterfacePtr[0];
+            }
+            return ret;
+        }
 
         public static int virConnectListDefinedInterfaces(virConnectPtr @conn, out string[] @names, int @maxnames)
         {
@@ -2490,7 +2565,14 @@ namespace Libvirt
             return NameArrayHandler(conn, out @names, @maxnames, PInvoke.virConnectListInterfaces);
         }
 
-
+        public static int virConnectNumOfDefinedInterfaces(virConnectPtr conn)
+        {
+            return PInvoke.virConnectNumOfDefinedInterfaces(conn);
+        }
+        public static int virConnectNumOfInterfaces(virConnectPtr conn)
+        {
+            return PInvoke.virConnectNumOfInterfaces(conn);
+        }
         public static int virInterfaceChangeBegin(virConnectPtr @conn, uint @flags = 0)
         {
             return PInvoke.virInterfaceChangeBegin(@conn, @flags);
@@ -2504,30 +2586,25 @@ namespace Libvirt
         {
             return PInvoke.virInterfaceChangeRollback(@conn, @flags);
         }
+        public static int virInterfaceCreate(virInterfacePtr @iface, uint @flags = 0)
+        {
+            return PInvoke.virInterfaceCreate(@iface, @flags);
+        }
 
+        public static virInterfacePtr virInterfaceDefineXML(virConnectPtr conn, string xml, uint flags = 0)
+        {
+            return PInvoke.virInterfaceDefineXML(conn, xml, flags);
+        }
+       public static int virInterfaceDestroy(virInterfacePtr @iface, uint @flags = 0)
+        {
+            return PInvoke.virInterfaceDestroy(@iface, @flags);
+        }
 
         public static int virInterfaceFree(virInterfacePtr @iface)
         {
             return PInvoke.virInterfaceFree(@iface);
         }
 
-        public static int virConnectNumOfDefinedInterfaces(virConnectPtr @conn)
-        {
-            return PInvoke.virConnectNumOfDefinedInterfaces(@conn);
-        }
-        public static int virConnectNumOfInterfaces(virConnectPtr @conn)
-        {
-            return PInvoke.virConnectNumOfInterfaces(@conn);
-        }
-        public static int virInterfaceCreate(virInterfacePtr @iface, uint @flags = 0)
-        {
-            return PInvoke.virInterfaceCreate(@iface, @flags);
-        }
-
-        public static int virInterfaceDestroy(virInterfacePtr @iface, uint @flags = 0)
-        {
-            return PInvoke.virInterfaceDestroy(@iface, @flags);
-        }
         public static string virInterfaceGetMACString(virInterfacePtr @iface)
         {
             return PInvoke.virInterfaceGetMACString(@iface);
@@ -2536,9 +2613,9 @@ namespace Libvirt
         {
             return PInvoke.virInterfaceGetName(@iface);
         }
-        public static string virInterfaceGetXMLDesc(virInterfacePtr @iface, uint @flags)
+        public static string virInterfaceGetXMLDesc(virInterfacePtr @iface, virInterfaceXMLFlags @flags)
         {
-            return PInvoke.virInterfaceGetXMLDesc(@iface, @flags);
+            return PInvoke.virInterfaceGetXMLDesc(@iface, (uint)@flags);
         }
         public static int virInterfaceIsActive(virInterfacePtr @iface)
         {
@@ -2570,7 +2647,7 @@ namespace Libvirt
                 {
                     pools[i].Pointer = Marshal.ReadIntPtr(ptr, i * IntPtr.Size);
                 }
-                free(ptr);//free the array
+                PInvoke.free(ptr);//free the array
             }
             else
             {
@@ -2671,7 +2748,7 @@ namespace Libvirt
                 {
                     @vols[i].Pointer = Marshal.ReadIntPtr(ptr, i * IntPtr.Size);
                 }
-                free(ptr);//free the array
+                PInvoke.free(ptr);//free the array
             }
             else
             {
@@ -2961,7 +3038,7 @@ namespace Libvirt
                 {
                     domains[i] = new virDomainPtr(Marshal.ReadIntPtr(ptr, i * IntPtr.Size));
                 }
-                free(ptr);//free the array, but not the domain objects, use dispose for that
+                PInvoke.free(ptr);//free the array, but not the domain objects, use dispose for that
             }
             else
             {
@@ -3196,7 +3273,38 @@ namespace Libvirt
         {
             return PInvoke.virDomainLookupByName(@conn, name);
         }
-
+        public static virDomainPtr virDomainLookupByUUID(virConnectPtr @conn, byte[] name)
+        {
+            return PInvoke.virDomainLookupByUUID(@conn, name);
+        }
+        public static virDomainPtr virDomainLookupByUUIDString(virConnectPtr @conn, string name)
+        {
+            return PInvoke.virDomainLookupByUUIDString(@conn, name);
+        }
+        public static int virDomainManagedSave(virDomainPtr dom, virDomainSaveRestoreFlags flags)
+        {
+            return PInvoke.virDomainManagedSave(dom, (uint)flags);
+        }
+        public static int virDomainManagedSaveRemove(virDomainPtr dom, uint flags = 0)
+        {
+            return PInvoke.virDomainManagedSaveRemove(dom, flags);
+        }
+        public static int virDomainMemoryPeek(virDomainPtr dom, ulong start, UIntPtr size, byte[] buffer, virDomainMemoryFlags flags)
+        {
+            throw new NotImplementedException();
+        }
+        public static int virDomainMemoryStats(virDomainPtr dom, virDomainMemoryStatPtr stats, uint nr_stats, uint flags = 0)
+        {
+            throw new NotImplementedException();
+        }
+        public static virDomainPtr virDomainMigrate(virDomainPtr domain, virConnectPtr dconn, virDomainMigrateFlags flags, string dname, string uri, uint bandwidth)
+        {
+            return PInvoke.virDomainMigrate(domain, dconn, (uint)flags, dname, uri, bandwidth);
+        }
+        public static virDomainPtr virDomainMigrate2(virDomainPtr domain, virConnectPtr dconn, string dxml, virDomainMigrateFlags flags, string dname, string uri, uint bandwidth)
+        {
+            return PInvoke.virDomainMigrate2(domain, dconn, dxml, (uint)flags, dname, uri, bandwidth);
+        }
         public static string virDomainGetName(virDomainPtr @conn)
         {
             return PInvoke.virDomainGetName(@conn);
@@ -3268,16 +3376,16 @@ namespace Libvirt
         {
             return PInvoke.virDomainSaveImageDefineXML(conn, to, dxml, (uint)flags);
         }
-        public static string virDomainSaveImageGetXMLDesc(virConnectPtr conn,string file, virDomainXMLFlags flags)
+        public static string virDomainSaveImageGetXMLDesc(virConnectPtr conn, string file, virDomainXMLFlags flags)
         {
             return PInvoke.virDomainSaveImageGetXMLDesc(conn, file, (uint)flags);
         }
 
-        public static string virDomainScreenshot(virDomainPtr domain,virStreamPtr stream, uint screen, uint flags = 0)
+        public static string virDomainScreenshot(virDomainPtr domain, virStreamPtr stream, uint screen, uint flags = 0)
         {
             return PInvoke.virDomainScreenshot(domain, stream, screen, flags);
         }
-        public static int	virDomainSendKey(virDomainPtr domain, virKeycodeSet codeset, uint holdtime, uint[] keycodes, int nkeycodes, uint flags = 0)
+        public static int virDomainSendKey(virDomainPtr domain, virKeycodeSet codeset, uint holdtime, uint[] keycodes, int nkeycodes, uint flags = 0)
         {
             return PInvoke.virDomainSendKey(domain, (uint)codeset, holdtime, keycodes, nkeycodes, flags);
         }
@@ -3410,6 +3518,12 @@ namespace Libvirt
             PInvoke.virEventUpdateTimeout(timer, timeout);
         }
 
+        //SNAPSHOTS
+        public static int virDomainHasCurrentSnapshot(virDomainPtr domain, uint flags = 0)
+        {
+            return PInvoke.virDomainHasCurrentSnapshot(domain, flags);
+        }
+   
 
     }
 
@@ -3418,6 +3532,18 @@ namespace Libvirt
     public static class PInvoke
     {
         private const string libraryPath = "libvirt-0.dll";
+
+        [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr malloc(IntPtr size);
+
+        [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void free(IntPtr ptr);
+
+        [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr calloc(IntPtr num, IntPtr size);
+
+        [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr realloc(IntPtr ptr, IntPtr size);
 
         private class StringWithoutNativeCleanUpMarshaler : ICustomMarshaler
         {
@@ -3536,16 +3662,18 @@ namespace Libvirt
         public static extern void virTypedParamsFree(virTypedParameterPtr @params, int @nparams);
 
         [DllImport(libraryPath, EntryPoint = "virNodeGetMemoryParameters", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
-        public static extern int virNodeGetMemoryParameters(virConnectPtr @conn, virTypedParameterPtr @params, IntPtr @nparams, uint @flags);
+        public static extern int virNodeGetMemoryParameters(virConnectPtr @conn, IntPtr @params, ref int @nparams, uint @flags);
+        [DllImport(libraryPath, EntryPoint = "virNodeGetMemoryParameters", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
+        public static extern int virNodeGetMemoryParameters(virConnectPtr @conn, [Out] _virTypedParameter[] @params, ref int @nparams, uint @flags);
 
         [DllImport(libraryPath, EntryPoint = "virNodeSetMemoryParameters", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
-        public static extern int virNodeSetMemoryParameters(virConnectPtr @conn, virTypedParameterPtr @params, int @nparams, uint @flags);
+        public static extern int virNodeSetMemoryParameters(virConnectPtr @conn, [Out] _virTypedParameter[] @params, int @nparams, uint @flags);
 
         [DllImport(libraryPath, EntryPoint = "virNodeGetCPUMap", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
         public static extern int virNodeGetCPUMap(virConnectPtr @conn, ref IntPtr @cpumap, ref int @online, uint @flags);
 
         [DllImport(libraryPath, EntryPoint = "virGetVersion", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
-        public static extern int virGetVersion(IntPtr @libVer, [MarshalAs(UnmanagedType.LPStr)] string @type, IntPtr @typeVer);
+        public static extern int virGetVersion(ref uint[] @libVer, [MarshalAs(UnmanagedType.LPStr), In] string @type, ref uint[] @typeVer);
 
         [DllImport(libraryPath, EntryPoint = "virInitialize", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
         public static extern int virInitialize();
@@ -3597,7 +3725,7 @@ namespace Libvirt
         public static extern int virConnectUnregisterCloseCallback(virConnectPtr @conn, virConnectCloseFunc @cb);
 
         [DllImport(libraryPath, EntryPoint = "virConnectGetMaxVcpus", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
-        public static extern int virConnectGetMaxVcpus(virConnectPtr @conn, [MarshalAs(UnmanagedType.LPStr)] string @type);
+        public static extern int virConnectGetMaxVcpus(virConnectPtr @conn, [MarshalAs(UnmanagedType.LPStr), In] string @type);
 
         [DllImport(libraryPath, EntryPoint = "virNodeGetInfo", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
         public static extern int virNodeGetInfo(virConnectPtr @conn, ref _virNodeInfo @info);
@@ -3622,13 +3750,13 @@ namespace Libvirt
         public static extern ulong virNodeGetFreeMemory(virConnectPtr @conn);
 
         [DllImport(libraryPath, EntryPoint = "virNodeGetSecurityModel", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
-        public static extern int virNodeGetSecurityModel(virConnectPtr @conn, virSecurityModelPtr @secmodel);
+        public static extern int virNodeGetSecurityModel(virConnectPtr @conn, ref _virSecurityModel @secmodel);
 
         [DllImport(libraryPath, EntryPoint = "virNodeSuspendForDuration", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
         public static extern int virNodeSuspendForDuration(virConnectPtr @conn, uint @target, ulong @duration, uint @flags);
 
         [DllImport(libraryPath, EntryPoint = "virNodeGetCellsFreeMemory", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
-        public static extern int virNodeGetCellsFreeMemory(virConnectPtr @conn, IntPtr @freeMems, int @startCell, int @maxCells);
+        public static extern int virNodeGetCellsFreeMemory(virConnectPtr @conn, [In, Out] ulong[] @freeMems, int @startCell, int @maxCells);
 
         [DllImport(libraryPath, EntryPoint = "virConnectIsEncrypted", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
         public static extern int virConnectIsEncrypted(virConnectPtr @conn);
@@ -3643,16 +3771,17 @@ namespace Libvirt
         public static extern int virConnectCompareCPU(virConnectPtr @conn, [MarshalAs(UnmanagedType.LPStr)] out string @xmlDesc, uint @flags);
 
         [DllImport(libraryPath, EntryPoint = "virConnectGetCPUModelNames", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
-        public static extern int virConnectGetCPUModelNames(virConnectPtr @conn, [MarshalAs(UnmanagedType.LPStr)] string @arch, out IntPtr @models, uint @flags);
+        public static extern int virConnectGetCPUModelNames(virConnectPtr @conn, [MarshalAs(UnmanagedType.LPStr), In] string @arch, IntPtr @models, uint @flags);
 
         [DllImport(libraryPath, EntryPoint = "virConnectBaselineCPU", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
-        public static extern IntPtr virConnectBaselineCPU(virConnectPtr @conn, out IntPtr @xmlCPUs, uint @ncpus, uint @flags);
+        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(StringWithNativeCleanUpMarshaler))]
+        public static extern string virConnectBaselineCPU(virConnectPtr @conn, [In] string[] @xmlCPUs, uint @ncpus, uint @flags);
 
         [DllImport(libraryPath, EntryPoint = "virNodeGetFreePages", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
-        public static extern int virNodeGetFreePages(virConnectPtr @conn, uint @npages, IntPtr @pages, int @startcell, uint @cellcount, IntPtr @counts, uint @flags);
+        public static extern int virNodeGetFreePages(virConnectPtr @conn, uint @npages, [In, Out] uint[] @pages, int @startcell, uint @cellcount, [In, Out] ulong[] @counts, uint @flags);
 
         [DllImport(libraryPath, EntryPoint = "virNodeAllocPages", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
-        public static extern int virNodeAllocPages(virConnectPtr @conn, uint @npages, IntPtr @pageSizes, IntPtr @pageCounts, int @startCell, uint @cellCount, uint @flags);
+        public static extern int virNodeAllocPages(virConnectPtr @conn, uint @npages, [In] uint[] @pageSizes, [In] ulong[] @pageCounts, int @startCell, uint @cellCount, uint @flags);
 
         [DllImport(libraryPath, EntryPoint = "virDomainGetSchedulerParameters", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
         public static extern int virDomainGetSchedulerParameters(virDomainPtr @domain, virTypedParameterPtr @params, IntPtr @nparams);
@@ -3667,19 +3796,19 @@ namespace Libvirt
         public static extern int virDomainSetSchedulerParametersFlags(virDomainPtr @domain, virTypedParameterPtr @params, int @nparams, uint @flags);
 
         [DllImport(libraryPath, EntryPoint = "virDomainMigrate", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
-        public static extern virDomainPtr virDomainMigrate(virDomainPtr @domain, virConnectPtr @dconn, int @flags, [MarshalAs(UnmanagedType.LPStr)] string @dname, [MarshalAs(UnmanagedType.LPStr)] string @uri, int @bandwidth);
+        public static extern virDomainPtr virDomainMigrate(virDomainPtr @domain, virConnectPtr @dconn, uint @flags, [MarshalAs(UnmanagedType.LPStr), In] string @dname, [MarshalAs(UnmanagedType.LPStr), In] string @uri, uint @bandwidth);
 
         [DllImport(libraryPath, EntryPoint = "virDomainMigrate2", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
-        public static extern virDomainPtr virDomainMigrate2(virDomainPtr @domain, virConnectPtr @dconn, [MarshalAs(UnmanagedType.LPStr)] string @dxml, int @flags, [MarshalAs(UnmanagedType.LPStr)] string @dname, [MarshalAs(UnmanagedType.LPStr)] string @uri, int @bandwidth);
+        public static extern virDomainPtr virDomainMigrate2(virDomainPtr @domain, virConnectPtr @dconn, [MarshalAs(UnmanagedType.LPStr), In] string @dxml, uint @flags, [MarshalAs(UnmanagedType.LPStr), In] string @dname, [MarshalAs(UnmanagedType.LPStr), In] string @uri, uint @bandwidth);
 
         [DllImport(libraryPath, EntryPoint = "virDomainMigrate3", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
         public static extern virDomainPtr virDomainMigrate3(virDomainPtr @domain, virConnectPtr @dconn, virTypedParameterPtr @params, uint @nparams, uint @flags);
 
         [DllImport(libraryPath, EntryPoint = "virDomainMigrateToURI", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
-        public static extern int virDomainMigrateToURI(virDomainPtr @domain, [MarshalAs(UnmanagedType.LPStr)] string @duri, int @flags, [MarshalAs(UnmanagedType.LPStr)] string @dname, int @bandwidth);
+        public static extern int virDomainMigrateToURI(virDomainPtr @domain, [MarshalAs(UnmanagedType.LPStr)] string @duri, int @flags, [MarshalAs(UnmanagedType.LPStr), In] string @dname, uint @bandwidth);
 
         [DllImport(libraryPath, EntryPoint = "virDomainMigrateToURI2", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
-        public static extern int virDomainMigrateToURI2(virDomainPtr @domain, [MarshalAs(UnmanagedType.LPStr)] string @dconnuri, [MarshalAs(UnmanagedType.LPStr)] string @miguri, [MarshalAs(UnmanagedType.LPStr)] string @dxml, int @flags, [MarshalAs(UnmanagedType.LPStr)] string @dname, int @bandwidth);
+        public static extern int virDomainMigrateToURI2(virDomainPtr @domain, [MarshalAs(UnmanagedType.LPStr)] string @dconnuri, [MarshalAs(UnmanagedType.LPStr), In] string @miguri, [MarshalAs(UnmanagedType.LPStr), In] string @dxml, int @flags, [MarshalAs(UnmanagedType.LPStr), In] string @dname, uint @bandwidth);
 
         [DllImport(libraryPath, EntryPoint = "virDomainMigrateToURI3", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
         public static extern int virDomainMigrateToURI3(virDomainPtr @domain, [MarshalAs(UnmanagedType.LPStr)] string @dconnuri, virTypedParameterPtr @params, uint @nparams, uint @flags);
@@ -3725,10 +3854,10 @@ namespace Libvirt
         public static extern virDomainPtr virDomainLookupByID(virConnectPtr @conn, int @id);
 
         [DllImport(libraryPath, EntryPoint = "virDomainLookupByUUID", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
-        public static extern virDomainPtr virDomainLookupByUUID(virConnectPtr @conn, IntPtr @uuid);
+        public static extern virDomainPtr virDomainLookupByUUID(virConnectPtr @conn, [In] byte[] @uuid);
 
         [DllImport(libraryPath, EntryPoint = "virDomainLookupByUUIDString", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
-        public static extern virDomainPtr virDomainLookupByUUIDString(virConnectPtr @conn, [MarshalAs(UnmanagedType.LPStr)] string @uuid);
+        public static extern virDomainPtr virDomainLookupByUUIDString(virConnectPtr @conn, [MarshalAs(UnmanagedType.LPStr), In] string @uuid);
 
         [DllImport(libraryPath, EntryPoint = "virDomainShutdown", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
         public static extern int virDomainShutdown(virDomainPtr @domain);
@@ -4129,7 +4258,7 @@ namespace Libvirt
 
         [DllImport(libraryPath, EntryPoint = "virDomainSetUserPassword", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
         public static extern int virDomainSetUserPassword(virDomainPtr @dom, [MarshalAs(UnmanagedType.LPStr), In] string @user, [MarshalAs(UnmanagedType.LPStr), In] string @password, uint flags);
-    
+
 
         [DllImport(libraryPath, EntryPoint = "virDomainSnapshotGetName", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
         public static extern string virDomainSnapshotGetName(virDomainSnapshotPtr @snapshot);
@@ -4237,7 +4366,7 @@ namespace Libvirt
         public static extern int virConnectListDefinedInterfaces(virConnectPtr @conn, IntPtr @names, int @maxnames);
 
         [DllImport(libraryPath, EntryPoint = "virConnectListAllInterfaces", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
-        public static extern int virConnectListAllInterfaces(virConnectPtr @conn, [Out] IntPtr @ifaces, uint @flags);
+        public static extern int virConnectListAllInterfaces(virConnectPtr @conn, ref IntPtr @ifaces, uint @flags);
 
         [DllImport(libraryPath, EntryPoint = "virInterfaceLookupByName", CallingConvention = CallingConvention.Cdecl, CharSet = System.Runtime.InteropServices.CharSet.Ansi)]
         public static extern virInterfacePtr virInterfaceLookupByName(virConnectPtr @conn, [MarshalAs(UnmanagedType.LPStr), In] string @name);
