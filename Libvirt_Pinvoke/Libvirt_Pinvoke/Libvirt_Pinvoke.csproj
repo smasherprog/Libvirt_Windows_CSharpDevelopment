@@ -32,6 +32,15 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Internal_Build|AnyCPU'">
+    <OutputPath>bin\Internal_Build\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="CS_Objects\Domain.cs" />
     <Compile Include="CS_Objects\Host.cs" />
@@ -39,6 +48,18 @@
     <Compile Include="CS_Objects\Stream.cs" />
     <Compile Include="CS_Objects\Storage_Volume.cs" />
     <Compile Include="Libvirt.cs" />
+    <Compile Include="Models\Concrete\BIOS_Bootloader.cs" />
+    <Compile Include="Models\Concrete\CPU_Layout.cs" />
+    <Compile Include="Models\Concrete\Device.cs" />
+    <Compile Include="Models\Concrete\Device_Sources.cs" />
+    <Compile Include="Models\Concrete\Features.cs" />
+    <Compile Include="Models\Concrete\General_Metadata.cs" />
+    <Compile Include="Models\Concrete\Validator.cs" />
+    <Compile Include="Models\Interface\IDevice_Source.cs" />
+    <Compile Include="Models\Concrete\Memory_Allocation.cs" />
+    <Compile Include="Models\Concrete\Virtual_Machine.cs" />
+    <Compile Include="Models\Interface\ITo_XML.cs" />
+    <Compile Include="Models\Interface\IValdiator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CS_Objects\Storage_Pool.cs" />
   </ItemGroup>
@@ -46,6 +67,10 @@
     <Reference Include="System" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

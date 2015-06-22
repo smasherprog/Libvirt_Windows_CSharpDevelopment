@@ -21,9 +21,9 @@ namespace Libvirt.CS_Objects
         {
             return API.virConnectBaselineCPU(_ConnectPtr, xmlCPUs, Convert.ToUInt32(xmlCPUs.Length), flags);
         }
-        public int virConnectCompareCPU(out string @xmlDesc, virConnectCompareCPUFlags @flags)
+        public int virConnectCompareCPU(out string xmlDesc, virConnectCompareCPUFlags flags)
         {
-            return API.virConnectCompareCPU(_ConnectPtr, out @xmlDesc, @flags);
+            return API.virConnectCompareCPU(_ConnectPtr, out xmlDesc, flags);
         }
         public int virConnectGetCPUModelNames(string arch, out string[] models)
         {
@@ -46,9 +46,9 @@ namespace Libvirt.CS_Objects
         {
             return API.virConnectGetMaxVcpus(_ConnectPtr, type);
         }
-        public string virConnectGetSysinfo(uint @flags = 0)
+        public string virConnectGetSysinfo(uint flags = 0)
         {
-            return API.virConnectGetSysinfo(_ConnectPtr, @flags);
+            return API.virConnectGetSysinfo(_ConnectPtr, flags);
         }
         public string virConnectGetType()
         {
@@ -116,10 +116,10 @@ namespace Libvirt.CS_Objects
             return API.virNodeGetCPUMap(_ConnectPtr, out cpumap, out count);
         }
 
-        public int virNodeGetCPUStats(int @cpuNum /*-1 for all cpus on host */, out _virNodeCPUStats[] @params)
+        public int virNodeGetCPUStats(int cpuNum /*-1 for all cpus on host */, out _virNodeCPUStats[] pars)
         {
             int count = 0;
-            return API.virNodeGetCPUStats(_ConnectPtr, @cpuNum, out @params, count);
+            return API.virNodeGetCPUStats(_ConnectPtr, cpuNum, out pars, count);
         }
         public int virNodeGetCellsFreeMemory(ulong[] freeMems, int startCell, int maxCells)
         {
@@ -134,7 +134,7 @@ namespace Libvirt.CS_Objects
             counts = new ulong[pages.Length * cellCount];
             return API.virNodeGetFreePages(_ConnectPtr, Convert.ToUInt32(pages.Length), pages, startCell, cellCount, counts);
         }
-        public int virNodeGetInfo(out _virNodeInfo @info)
+        public int virNodeGetInfo(out _virNodeInfo info)
         {
             return API.virNodeGetInfo(_ConnectPtr, out info);
         }
@@ -144,7 +144,7 @@ namespace Libvirt.CS_Objects
             return API.virNodeGetMemoryParameters(_ConnectPtr, out pars, ref count);
         }
 
-        public int virNodeGetMemoryStats(int @cellNum/*-1 for all memory info on host */, out _virNodeMemoryStats[] pars)
+        public int virNodeGetMemoryStats(int cellNum/*-1 for all memory info on host */, out _virNodeMemoryStats[] pars)
         {
             int count = 0;
             return API.virNodeGetMemoryStats(_ConnectPtr, cellNum, out pars, ref count);
@@ -311,11 +311,22 @@ namespace Libvirt.CS_Objects
         {
             return API.virConnectGetDomainCapabilities(_ConnectPtr, emulatorbin, arch, machine, virttype);
         }
-        public int virConnectListAllDomains(out virDomainPtr[] domains, virConnectListAllDomainsFlags flags)
+        public int virConnectListAllDomains(out Domain[] domains, virConnectListAllDomainsFlags flags)
         {
-            return API.virConnectListAllDomains(_ConnectPtr, out domains, flags);
+            Libvirt.virDomainPtr[] ds;
+            var ret = API.virConnectListAllDomains(_ConnectPtr, out ds, flags);
+            if (ret > -1)
+            {
+                domains = new Domain[ds.Length];
+                for (var i = 0; i < ds.Length; i++)
+                {
+                    domains[i] = new Domain(ds[i]);
+                }
+            }
+            else domains = new Domain[0];
+            return ret;
         }
-        public int virConnectListDefinedDomains(virConnectPtr conn, out string[] names, int maxnames)
+        public int virConnectListDefinedDomains(out string[] names, int maxnames)
         {
             return API.virConnectListDefinedDomains(_ConnectPtr, out names, maxnames);
         }
@@ -342,25 +353,25 @@ namespace Libvirt.CS_Objects
             return new Domain(API.virDomainLookupByName(_ConnectPtr, name));
         }
 
-        public Domain virDomainCreateLinux(string xmlDesc)
+        public Domain virDomainCreateLinux(Libvirt.Models.Concrete.Virtual_Machine machine_def)
         {
-            return new Domain(API.virDomainCreateLinux(_ConnectPtr, xmlDesc));
+            return new Domain(API.virDomainCreateLinux(_ConnectPtr, machine_def.To_XML()));
         }
-        public Domain virDomainCreateXML(string xmlDesc, virDomainCreateFlags flags)
+        public Domain virDomainCreateXML(Libvirt.Models.Concrete.Virtual_Machine machine_def, virDomainCreateFlags flags)
         {
-            return new Domain(API.virDomainCreateXML(_ConnectPtr, xmlDesc, flags));
+            return new Domain(API.virDomainCreateXML(_ConnectPtr, machine_def.To_XML(), flags));
         }
-        public Domain virDomainCreateXMLWithFiles(string xmlDesc, int[] files, virDomainCreateFlags flags)
+        public Domain virDomainCreateXMLWithFiles(Libvirt.Models.Concrete.Virtual_Machine machine_def, int[] files, virDomainCreateFlags flags)
         {
-            return new Domain(API.virDomainCreateXMLWithFiles(_ConnectPtr, xmlDesc, Convert.ToUInt32(files.Length), files, flags));
+            return new Domain(API.virDomainCreateXMLWithFiles(_ConnectPtr, machine_def.To_XML(), Convert.ToUInt32(files.Length), files, flags));
         }
-        public Domain virDomainDefineXML(string xml)
+        public Domain virDomainDefineXML(Libvirt.Models.Concrete.Virtual_Machine machine_def)
         {
-            return new Domain(API.virDomainDefineXML(_ConnectPtr, xml));
+            return new Domain(API.virDomainDefineXML(_ConnectPtr, machine_def.To_XML()));
         }
-        public Domain 	virDomainDefineXMLFlags	(string xml, virDomainDefineFlags flags)
+        public Domain virDomainDefineXMLFlags(Libvirt.Models.Concrete.Virtual_Machine machine_def, virDomainDefineFlags flags)
         {
-            return new Domain(API.virDomainDefineXMLFlags(_ConnectPtr, xml, flags));
+            return new Domain(API.virDomainDefineXMLFlags(_ConnectPtr, machine_def.To_XML(),  flags));
         }
         public int virDomainRestore(string from)
         {

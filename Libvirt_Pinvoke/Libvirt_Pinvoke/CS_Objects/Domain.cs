@@ -26,13 +26,13 @@ namespace Libvirt.CS_Objects
         {
             return API.virDomainAddIOThread(_DomainPtr, iothread_id, flags);
         }
-        public int virDomainAttachDevice(string xml)
+        public int virDomainAttachDevice(Libvirt.Models.Concrete.Device device)
         {
-            return API.virDomainAttachDevice(_DomainPtr, xml);
+            return API.virDomainAttachDevice(_DomainPtr, device.To_XML());
         }
-        public int virDomainAttachDeviceFlags(string xml, virDomainDeviceModifyFlags flags)
+        public int virDomainAttachDeviceFlags(Libvirt.Models.Concrete.Device device, virDomainDeviceModifyFlags flags)
         {
-            return API.virDomainAttachDeviceFlags(_DomainPtr, xml, flags);
+            return API.virDomainAttachDeviceFlags(_DomainPtr, device.To_XML(), flags);
         }
         public int virDomainBlockCommit(string disk, string b, string top, uint bandwidth, virDomainBlockCommitFlags flags)
         {
