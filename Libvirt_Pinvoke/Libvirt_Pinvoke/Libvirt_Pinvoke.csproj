@@ -62,10 +62,18 @@
     <Compile Include="Models\Interface\IValdiator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CS_Objects\Storage_Pool.cs" />
+    <Compile Include="Service\Concrete\General_Metadata_Validator.cs" />
+    <Compile Include="Service\Concrete\Features_Validator.cs" />
+    <Compile Include="Service\Concrete\Memory_Allocation_Validator.cs" />
+    <Compile Include="Service\Concrete\Device_Validator.cs" />
+    <Compile Include="Service\Concrete\CPU_Layout_Validator.cs" />
+    <Compile Include="Service\Concrete\BIOS_Bootloader_Validator.cs" />
+    <Compile Include="Service\Interface\IService_Validator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

@@ -8,6 +8,6 @@ namespace Libvirt.Models.Interface
 {
     public interface ITo_XML
     {
-        string To_XML();
+        string To_XML(); 
     }
 }
