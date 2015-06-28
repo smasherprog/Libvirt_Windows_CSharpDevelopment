@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Libvirt.Models.Concrete
 {
-    public class Features : ITo_XML, IValidation
+    public class Features : IXML, IValidation
     {
         public Features()
         {
@@ -38,6 +38,14 @@ namespace Libvirt.Models.Concrete
         public void Validate(IValdiator v)
         {
 
+        }
+
+        public void From_XML(System.Xml.Linq.XElement xml)
+        {
+            var element = xml.Element("features");
+            pae = element.Element("pae")!= null;
+            acpi = element.Element("acpi") != null;
+            apic = element.Element("apic") != null;
         }
     }
 }

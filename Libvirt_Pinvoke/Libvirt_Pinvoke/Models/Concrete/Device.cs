@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Libvirt.Models.Concrete
 {
 
-    public class Device : ITo_XML, IValidation
+    public class Device : IXML, IValidation
     {
         public enum Device_Types { file, block, dir, network, volume };
         public enum Device_Device_Types { floppy, disk, cdrom, lun };//default is disk
@@ -26,7 +26,9 @@ namespace Libvirt.Models.Concrete
             Driver_Cache_Type = Driver_Cache_Types._default;
             Device_Bus_Type = Device_Bus_Types.virtio;
             ReadOnly = false;
+            Letter = 'a';
         }
+
         public Device_Types Device_Type { get; set; }
         public Device_Device_Types Device_Device_Type { get; set; }
         public Snapshot_Types Snapshot_Type { get; set; }
@@ -35,11 +37,8 @@ namespace Libvirt.Models.Concrete
         public Device_Bus_Types Device_Bus_Type { get; set; }
         public IDevice_Source Source { get; set; }
         public bool ReadOnly { get; set; }
+        public char Letter { get; set; }
         public string To_XML()
-        {
-            throw new NotImplementedException("Use the overloaded version of To_XML and pass an hd");
-        }
-        public string To_XML(char hd_letter)
         {
             var ret = "<disk type='" + Device_Type.ToString() + "' device='" + Device_Device_Type.ToString() + "' ";
             if (Snapshot_Type != Snapshot_Types._default) ret += "snapshot='" + Snapshot_Type.ToString().Replace("_", "") + "'";
@@ -51,10 +50,95 @@ namespace Libvirt.Models.Concrete
             if (Device_Bus_Type == Device_Bus_Types.virtio) ret += "vd";
             else if (Device_Bus_Type == Device_Bus_Types.scsi) ret += "sd";
             else ret += "sd";
-            ret += hd_letter + "' bus='" + Device_Bus_Type.ToString() + "' />";
+            ret += Letter + "' bus='" + Device_Bus_Type.ToString() + "' />";
+
             if (ReadOnly) ret += "<readonly/>";
             ret += "</disk>";
             return ret;
+        }
+        private void Reset()
+        {
+            Device_Type = Device_Types.dir;
+            Device_Device_Type = Device_Device_Types.disk;
+            Snapshot_Type = Snapshot_Types._default;
+            Driver_Type = Driver_Types.raw;
+            Driver_Cache_Type = Driver_Cache_Types._default;
+            Device_Bus_Type = Device_Bus_Types.virtio;
+            ReadOnly = false;
+            Letter = 'a';
+        }
+        public void From_XML(System.Xml.Linq.XElement xml)
+        {
+            Reset();
+            var os = xml;
+            if (os != null)
+            {
+                var attr = os.Attribute("type");
+                if (attr != null)
+                {
+                    var b = Device_Types.dir;
+                    Enum.TryParse(attr.Value, true, out b);
+                    Device_Type = b;
+                }
+                attr = os.Attribute("device");
+                if (attr != null)
+                {
+                    var b = Device_Device_Types.disk;
+                    Enum.TryParse(attr.Value, true, out b);
+                    Device_Device_Type = b;
+                }
+                attr = os.Attribute("snapshot");
+                if (attr != null)
+                {
+                    var b = Snapshot_Types._default;
+                    Enum.TryParse(attr.Value.Replace("_", ""), true, out b);
+                    Snapshot_Type = b;
+                }
+            }
+            var element = os.Element("driver");
+            if (element != null)
+            {
+                var attr = os.Attribute("type");
+                if (attr != null)
+                {
+                    var b = Driver_Types.raw;
+                    Enum.TryParse(attr.Value, true, out b);
+                    Driver_Type = b;
+                }
+                attr = os.Attribute("cache");
+                if (attr != null)
+                {
+                    var b = Driver_Cache_Types._default;
+                    Enum.TryParse(attr.Value.Replace("_", ""), true, out b);
+                    Driver_Cache_Type = b;
+                }
+            }
+            if (Device_Type == Device_Types.dir) Source = new Device_Source_Dir();
+            else if (Device_Type == Device_Types.file) Source = new Device_Source_File();
+            else if (Device_Type == Device_Types.block) Source = new Device_Source_Block();
+            else if (Device_Type == Device_Types.network) Source = new Device_Source_Network();
+            else if (Device_Type == Device_Types.volume)  Source = new Device_Source_Volume();
+            if(Source!= null) Source.From_XML(os);
+
+            os = xml.Element("target");
+            if (os != null)
+            {
+                var attr = os.Attribute("bus");
+                if (attr != null)
+                {
+                    var b = Device_Bus_Types.virtio;
+                    Enum.TryParse(attr.Value, true, out b);
+                    Device_Bus_Type = b;
+                }
+                attr = os.Attribute("dev");
+                if (attr != null)
+                {
+                    Letter = attr.Value.LastOrDefault();
+                }
+            }
+            os = xml.Element("readonly");
+            if (os != null) ReadOnly = true;
+            else ReadOnly = false;
         }
         public void Validate(IValdiator v)
         {

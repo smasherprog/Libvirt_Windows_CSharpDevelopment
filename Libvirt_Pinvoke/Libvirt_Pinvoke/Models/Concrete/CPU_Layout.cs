@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace Libvirt.Models.Concrete
 {
-    public class CPU_Layout : ITo_XML, IValidation
+    public class CPU_Layout : IXML, IValidation
     {
+        public enum CPU_Models { _default, Broadwell, coreduo, qemu32, qemu64, kvm32, kvm64, Haswell, Conroe, Penryn, Nehalem, Westmere, Opteron_G1, Opteron_G2, Opteron_G3, Opteron_G4, Sandybridge };
         public CPU_Layout()
         {
-            vCpu_Count = 1;
-            Cpu_Model = "qemu64";// AGAIN, I am using a vm within a vm to test, so this must be selected as the default..
-           // Socket_Count = Core_Count = Thread_Count = -1;
+            Reset();
+
         }
         public int vCpu_Count { get; set; }
-        public string Cpu_Model { get; set; }
+        public CPU_Models Cpu_Model { get; set; }
 
         //TOPOLOGY doesnt really make any sense at this point
         //private int _Socket_Count;
@@ -30,7 +30,7 @@ namespace Libvirt.Models.Concrete
         {
             var ret = "<vcpu placement='static'>" + vCpu_Count.ToString() + "</vcpu>";
             ret += "<cpu match='exact'>";
-            ret += "<model>"+Cpu_Model+"</model>";
+            if(Cpu_Model != CPU_Models._default) ret += "<model>" + Cpu_Model.ToString()+ "</model>";
             ret += "</cpu>";
             //if (Socket_Count > 0 || Core_Count > 0 || Thread_Count > 0)
             //{
@@ -43,6 +43,33 @@ namespace Libvirt.Models.Concrete
             //}
 
             return ret;
+        }
+        private void Reset()
+        {
+            vCpu_Count = 1;
+            Cpu_Model = CPU_Models.qemu64;// AGAIN, I am using a vm within a vm to test, so this must be selected as the default..
+            // Socket_Count = Core_Count = Thread_Count = -1;
+        }
+        public void From_XML(System.Xml.Linq.XElement xml)
+        {
+            Reset();
+            var element = xml.Element("vcpu");
+            if (element != null)
+            {
+                var i = 0;
+                Int32.TryParse(element.Value, out i);
+                if (i == 0) i = 1;
+                vCpu_Count = i;
+
+            }
+            element = xml.Element("model");
+            if (element != null)
+            {
+                var b = CPU_Models.qemu64;
+                Enum.TryParse(element.Value, true, out b);
+                Cpu_Model = b;
+            }
+            else Cpu_Model = CPU_Models._default;
         }
         public void Validate(IValdiator v)
         {

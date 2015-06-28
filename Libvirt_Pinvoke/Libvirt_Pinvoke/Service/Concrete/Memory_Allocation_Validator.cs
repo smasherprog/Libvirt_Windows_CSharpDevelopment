@@ -16,14 +16,15 @@ namespace Libvirt.Service.Concrete
             obj2.virNodeGetInfo(out info);
             var maxmemory = (info.memory / 1024);
 
-            if (obj.maxMemory > maxmemory)
-            {
-                v.AddError("Memory_Allocation.maxMemory", "Cannot exceed the Maximum Available!");
-            }
-            if (obj.memory > obj.maxMemory)
-            {
-                v.AddError("Memory_Allocation.memory", "Cannot exceed the Maximum Available!");
-            }
+            //check ignored until i can convert memory units correctly
+            //if (obj.memory > maxmemory)
+            //{
+            //    v.AddError("Memory_Allocation.maxMemory", "Cannot exceed the Maximum Memory Available on the host!");
+            //}
+            //if (obj.currentMemory > obj.memory)
+            //{
+            //    v.AddError("Memory_Allocation.memory", "Cannot exceed the Maximum Memory Available on the host!");
+            //}
         }
 
     }

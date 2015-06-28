@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Libvirt.Models.Concrete
 {
-    public class General_Metadata : ITo_XML, IValidation
+    public class General_Metadata : IXML, IValidation
     {
         public General_Metadata()
         {
@@ -39,6 +39,30 @@ namespace Libvirt.Models.Concrete
                         break;
                     }
                 }
+            }
+        }
+
+        public void From_XML(System.Xml.Linq.XElement xml)
+        {
+            var element = xml.Element("name");
+            if (element != null)
+            {
+                name = element.Value;
+            }
+            element = xml.Element("title");
+            if (element != null)
+            {
+                title = element.Value;
+            } 
+            element = xml.Element("description");
+            if (element != null)
+            {
+                description = element.Value;
+            }
+            element = xml.Element("uuid");
+            if (element != null)
+            {
+                _uuid = element.Value;
             }
         }
     }
