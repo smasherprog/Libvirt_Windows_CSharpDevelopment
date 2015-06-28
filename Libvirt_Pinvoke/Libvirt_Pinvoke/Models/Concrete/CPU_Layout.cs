@@ -9,7 +9,7 @@ namespace Libvirt.Models.Concrete
 {
     public class CPU_Layout : IXML, IValidation
     {
-        public enum CPU_Models { _default, Broadwell, coreduo, qemu32, qemu64, kvm32, kvm64, Haswell, Conroe, Penryn, Nehalem, Westmere, Opteron_G1, Opteron_G2, Opteron_G3, Opteron_G4, Sandybridge };
+        public enum CPU_Models { Hypervisor_Default, Broadwell, qemu32, qemu64, kvm32, kvm64, Haswell, Conroe, Penryn, Nehalem, Westmere, Opteron_G1, Opteron_G2, Opteron_G3, Opteron_G4, Sandybridge };
         public CPU_Layout()
         {
             Reset();
@@ -30,7 +30,7 @@ namespace Libvirt.Models.Concrete
         {
             var ret = "<vcpu placement='static'>" + vCpu_Count.ToString() + "</vcpu>";
             ret += "<cpu match='exact'>";
-            if(Cpu_Model != CPU_Models._default) ret += "<model>" + Cpu_Model.ToString()+ "</model>";
+            if (Cpu_Model != CPU_Models.Hypervisor_Default) ret += "<model>" + Cpu_Model.ToString() + "</model>";
             ret += "</cpu>";
             //if (Socket_Count > 0 || Core_Count > 0 || Thread_Count > 0)
             //{
@@ -69,7 +69,7 @@ namespace Libvirt.Models.Concrete
                 Enum.TryParse(element.Value, true, out b);
                 Cpu_Model = b;
             }
-            else Cpu_Model = CPU_Models._default;
+            else Cpu_Model = CPU_Models.Hypervisor_Default;
         }
         public void Validate(IValdiator v)
         {
