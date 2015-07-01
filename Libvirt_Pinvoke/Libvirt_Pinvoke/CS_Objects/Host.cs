@@ -208,14 +208,15 @@ namespace Libvirt.CS_Objects
             return API.virInterfaceChangeRollback(_ConnectPtr);
         }
         //Storage stuff
-        public Storage_Pool virStoragePoolCreateXML(string xmlDesc)
+        public Storage_Pool virStoragePoolCreateXML(Libvirt.Models.Concrete.Storage_Pool pool_def)
         {
-            return new Storage_Pool(API.virStoragePoolCreateXML(_ConnectPtr, xmlDesc));
+            return new Storage_Pool(API.virStoragePoolCreateXML(_ConnectPtr, pool_def.To_XML()));
         }
-        public Storage_Pool virStoragePoolDefineXML(string xml)
+        public Storage_Pool virStoragePoolDefineXML(Libvirt.Models.Concrete.Storage_Pool pool_def)
         {
-            return new Storage_Pool(API.virStoragePoolDefineXML(_ConnectPtr, xml));
+            return new Storage_Pool(API.virStoragePoolDefineXML(_ConnectPtr, pool_def.To_XML()));
         }
+
         public Storage_Pool virStoragePoolLookupByName(string name)
         {
             return new Storage_Pool(API.virStoragePoolLookupByName(_ConnectPtr, name));

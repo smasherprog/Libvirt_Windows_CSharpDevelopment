@@ -55,10 +55,13 @@
     <Compile Include="Models\Concrete\Features.cs" />
     <Compile Include="Models\Concrete\General_Metadata.cs" />
     <Compile Include="Models\Concrete\Device_Collection.cs" />
+    <Compile Include="Models\Concrete\Storage_Pool.cs" />
+    <Compile Include="Models\Concrete\Storage_Pool_Items.cs" />
     <Compile Include="Models\Concrete\Validator.cs" />
     <Compile Include="Models\Interface\IDevice_Source.cs" />
     <Compile Include="Models\Concrete\Memory_Allocation.cs" />
     <Compile Include="Models\Concrete\Virtual_Machine.cs" />
+    <Compile Include="Models\Interface\IStorage_Pool_Item.cs" />
     <Compile Include="Models\Interface\IXML.cs" />
     <Compile Include="Models\Interface\IValdiator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -79,7 +82,8 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(TargetDir)*" "C:\Users\scott\Documents\GitHub\VM_Manager\packages\Libvirt_Pinvoke.1.2.17.17\lib\net40" /Y /R /S /I</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

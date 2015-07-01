@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Libvirt_Pinvoke</id>
-    <version>1.2.17.17</version>
+    <version>1.2.17.18</version>
     <title>Libvirt Pinvoke</title>
     <authors>Scott Lee</authors>
     <owners></owners>
