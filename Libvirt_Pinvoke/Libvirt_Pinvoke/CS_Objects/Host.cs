@@ -74,20 +74,17 @@ namespace Libvirt.CS_Objects
         {
             return API.virConnectIsSecure(_ConnectPtr);
         }
-        public static async Task<Host> virConnectOpen(string name)
+        public static Host virConnectOpen(string name)
         {
-            var h = await API.virConnectOpen(name);
-            return new Host(h);
+            return new Host(API.virConnectOpen(name));
         }
-        public static async Task<Host> virConnectOpenReadOnly(string @name)
+        public static Host virConnectOpenReadOnly(string @name)
         {
-            var h = await API.virConnectOpenReadOnly(name);
-            return new Host(h);
+            return new Host(API.virConnectOpenReadOnly(name));
         }
-        public static async Task<Host> virConnectOpenAuth(string @name, _virConnectAuth @auth, virConnectFlags @flags)
+        public static Host virConnectOpenAuth(string @name, _virConnectAuth @auth, virConnectFlags @flags)
         {
-            var h = await API.virConnectOpenAuth(@name, @auth, @flags);
-            return new Host(h);
+            return new Host( API.virConnectOpenAuth(@name, @auth, @flags));
         }
 
         public int virConnectRegisterCloseCallback(virConnectCloseFunc cb)

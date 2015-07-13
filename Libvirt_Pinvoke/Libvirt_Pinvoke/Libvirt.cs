@@ -2429,17 +2429,17 @@ namespace Libvirt
             return PInvoke.virConnectIsSecure(conn);
         }
 
-        public static Task<virConnectPtr> virConnectOpen(string @name)
+        public static virConnectPtr virConnectOpen(string @name)
         {
-            return Task<virConnectPtr>.Factory.StartNew(() => { return PInvoke.virConnectOpen(name); });
+            return PInvoke.virConnectOpen(name);
         }
-        public static Task<virConnectPtr> virConnectOpenReadOnly(string @name)
+        public static virConnectPtr virConnectOpenReadOnly(string @name)
         {
-            return Task<virConnectPtr>.Factory.StartNew(() => { return PInvoke.virConnectOpenReadOnly(name); });
+            return PInvoke.virConnectOpenReadOnly(name); 
         }
-        public static Task<virConnectPtr> virConnectOpenAuth(string @name, _virConnectAuth @auth, virConnectFlags @flags)
+        public static virConnectPtr virConnectOpenAuth(string @name, _virConnectAuth @auth, virConnectFlags @flags)
         {
-            return Task<virConnectPtr>.Factory.StartNew(() => { return PInvoke.virConnectOpenAuth(@name, @auth, (uint)@flags); });
+            return PInvoke.virConnectOpenAuth(@name, @auth, (uint)@flags);
         }
         public static int virConnectRef(virConnectPtr @conn)
         {
