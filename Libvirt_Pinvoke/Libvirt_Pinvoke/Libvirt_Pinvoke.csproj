@@ -94,6 +94,7 @@
     <Compile Include="CS_Objects\Storage_Pool.cs" />
     <Compile Include="Service\Concrete\General_Metadata_Validator.cs" />
     <Compile Include="Service\Concrete\Features_Validator.cs" />
+    <Compile Include="Service\Concrete\Storage_Pool_Validator.cs" />
     <Compile Include="Service\Concrete\Memory_Allocation_Validator.cs" />
     <Compile Include="Service\Concrete\Device_Validator.cs" />
     <Compile Include="Service\Concrete\CPU_Layout_Validator.cs" />
