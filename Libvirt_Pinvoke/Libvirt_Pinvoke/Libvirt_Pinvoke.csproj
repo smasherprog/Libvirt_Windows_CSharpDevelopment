@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Libvirt_Pinvoke</RootNamespace>
     <AssemblyName>Libvirt_Pinvoke</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -50,7 +50,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>bin\x86\Release\</OutputPath>
+    <OutputPath>..\..\Libvirt_PInvoke_Nuget\Libvirt_Pinvoke\lib\net40\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
@@ -69,6 +69,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CS_Objects\Domain.cs" />
+    <Compile Include="CS_Objects\Extensions\Storage_Volume_Extensions.cs" />
     <Compile Include="CS_Objects\Host.cs" />
     <Compile Include="CS_Objects\Interface.cs" />
     <Compile Include="CS_Objects\Stream.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="Models\Concrete\Features.cs" />
     <Compile Include="Models\Concrete\General_Metadata.cs" />
     <Compile Include="Models\Concrete\Device_Collection.cs" />
+    <Compile Include="Models\Concrete\Storage_Volume.cs" />
     <Compile Include="Models\Concrete\Storage_Pool.cs" />
     <Compile Include="Models\Concrete\Storage_Pool_Items.cs" />
     <Compile Include="Models\Concrete\Validator.cs" />
@@ -94,6 +96,7 @@
     <Compile Include="CS_Objects\Storage_Pool.cs" />
     <Compile Include="Service\Concrete\General_Metadata_Validator.cs" />
     <Compile Include="Service\Concrete\Features_Validator.cs" />
+    <Compile Include="Service\Concrete\Storage_Volume_Validator.cs" />
     <Compile Include="Service\Concrete\Storage_Pool_Validator.cs" />
     <Compile Include="Service\Concrete\Memory_Allocation_Validator.cs" />
     <Compile Include="Service\Concrete\Device_Validator.cs" />

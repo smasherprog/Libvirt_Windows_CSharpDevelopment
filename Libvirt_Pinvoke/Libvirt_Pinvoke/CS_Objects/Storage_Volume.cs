@@ -55,6 +55,7 @@ namespace Libvirt.CS_Objects
         {
             return API.virStorageVolUpload(_Storage_VolumePtr, Stream.GetPtr(stream), offset, length);
         }
+  
         public int virStorageVolWipe()
         {
             return API.virStorageVolWipe(_Storage_VolumePtr);
