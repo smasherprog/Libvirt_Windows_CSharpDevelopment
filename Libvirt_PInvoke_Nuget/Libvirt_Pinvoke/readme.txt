@@ -8,10 +8,6 @@ Libvirt Build Version: 1.2.13
 
 Project must be either x86 or x64 build to ensure correct dll's are linked properly. ANY CPU is not a valid build configuration and a compiler error will be generated if you try to build with 'ANY CPU.'
 
-WHEN DEBUGGING IN VISUAL STUDIO
-***
-	When running this library in Visual studio in debugging, the virConnectClose() will throw an SEH exception, just surround with a try catch block. Additionally, when connecting, if the server cannot be contacted, an SEH exception will be thrown as well. These are not thrown in Release Mode, only debug mode --no idea why, ask the Libvirt devs . . . 
-***
 
 API:
 The reference API is here http://libvirt.org/html/. All functions and structs use the same names as are used in the API.

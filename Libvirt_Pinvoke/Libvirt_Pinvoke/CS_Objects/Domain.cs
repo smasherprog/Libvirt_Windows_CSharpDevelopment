@@ -17,6 +17,42 @@ namespace Libvirt.CS_Objects
         {
             _DomainPtr = ptr;
         }
+        public int virDomainHasCurrentSnapshot()
+        {
+            return API.virDomainHasCurrentSnapshot(_DomainPtr);
+        }
+
+        public int virDomainListAllSnapshots(out Domain_Shapshot[] snaps, virDomainSnapshotListFlags flags)
+        {
+            virDomainSnapshotPtr[] items = new virDomainSnapshotPtr[0];
+            var ret = API.virDomainListAllSnapshots(_DomainPtr, out items, flags);
+            snaps = new Domain_Shapshot[items.Length];
+            for (var i = 0; i < items.Length; i++)
+                snaps[i] = new Domain_Shapshot(items[i]);
+            return ret;
+        }
+        public Domain_Shapshot virDomainSnapshotCreateXML(string xmlDesc, virDomainSnapshotCreateFlags flags)
+        {
+            return new Domain_Shapshot(API.virDomainSnapshotCreateXML(_DomainPtr, xmlDesc, flags));
+        }
+        public Domain_Shapshot virDomainSnapshotCurrent()
+        {
+            return new Domain_Shapshot(API.virDomainSnapshotCurrent(_DomainPtr));
+        }
+        public int virDomainSnapshotListNames(out string[] names, int nameslen, virDomainSnapshotListFlags flags)
+        {
+            return API.virDomainSnapshotListNames(_DomainPtr, out names, nameslen, flags);
+        }
+        public Domain_Shapshot virDomainSnapshotLookupByName(string name)
+        {
+            return new Domain_Shapshot(API.virDomainSnapshotLookupByName(_DomainPtr, name));
+        }
+
+        public int virDomainSnapshotNum(virDomainSnapshotListFlags flags)
+        {
+            return API.virDomainSnapshotNum(_DomainPtr, flags);
+        }
+
 
         public int virDomainAbortJob()
         {
@@ -26,11 +62,11 @@ namespace Libvirt.CS_Objects
         {
             return API.virDomainAddIOThread(_DomainPtr, iothread_id, flags);
         }
-        public int virDomainAttachDevice(Libvirt.Models.Concrete.Device device)
+        public int virDomainAttachDevice(Libvirt.Models.Interface.IXML device)
         {
             return API.virDomainAttachDevice(_DomainPtr, device.To_XML());
         }
-        public int virDomainAttachDeviceFlags(Libvirt.Models.Concrete.Device device, virDomainDeviceModifyFlags flags)
+        public int virDomainAttachDeviceFlags(Libvirt.Models.Interface.IXML device, virDomainDeviceModifyFlags flags)
         {
             return API.virDomainAttachDeviceFlags(_DomainPtr, device.To_XML(), flags);
         }
@@ -148,7 +184,7 @@ namespace Libvirt.CS_Objects
             int count = 0;
             return API.virDomainGetBlockIoTune(_DomainPtr, disk, out pars, ref count, flags);
         }
-        public int virDomainGetBlockJobInfo(string disk, out  _virDomainBlockJobInfo info, virDomainBlockJobInfoFlags flags)
+        public int virDomainGetBlockJobInfo(string disk, out _virDomainBlockJobInfo info, virDomainBlockJobInfoFlags flags)
         {
             return API.virDomainGetBlockJobInfo(_DomainPtr, disk, out info, flags);
         }
@@ -201,7 +237,7 @@ namespace Libvirt.CS_Objects
         }
         public int virDomainGetJobStats(virDomainJobType type, out virTypedParameter[] pars, int nparams, virDomainGetJobStatsFlags flags)
         {
-            return API.virDomainGetJobStats(_DomainPtr, type, out  pars, ref nparams, flags);
+            return API.virDomainGetJobStats(_DomainPtr, type, out pars, ref nparams, flags);
         }
         public uint virDomainGetMaxMemory()
         {
@@ -279,9 +315,11 @@ namespace Libvirt.CS_Objects
         {
             return API.virDomainGetVcpusFlags(_DomainPtr, flags);
         }
-        public string virDomainGetXMLDesc(virDomainXMLFlags flags)
+        public Libvirt.Models.Concrete.Virtual_Machine virDomainGetXMLDesc(virDomainXMLFlags flags)
         {
-            return API.virDomainGetXMLDesc(_DomainPtr, flags);
+            var vm = new Libvirt.Models.Concrete.Virtual_Machine();
+            vm.From_XML(System.Xml.Linq.XDocument.Parse(API.virDomainGetXMLDesc(_DomainPtr, flags)).Root);
+            return vm;
         }
         public int virDomainHasManagedSaveImage()
         {
@@ -401,11 +439,11 @@ namespace Libvirt.CS_Objects
         }
         public int virDomainPinEmulator(out byte[] cpumap, int maplen, virDomainModificationImpact flags)
         {
-            return API.virDomainPinEmulator(_DomainPtr, out  cpumap, maplen, flags);
+            return API.virDomainPinEmulator(_DomainPtr, out cpumap, maplen, flags);
         }
         public int virDomainPinIOThread(uint iothread_id, out byte[] cpumap, int maplen, virDomainModificationImpact flags)
         {
-            return API.virDomainPinIOThread(_DomainPtr, iothread_id, out  cpumap, maplen, flags);
+            return API.virDomainPinIOThread(_DomainPtr, iothread_id, out cpumap, maplen, flags);
         }
         public int virDomainPinVcpu(uint vcpu, out byte[] cpumap, int maplen)
         {
@@ -549,15 +587,15 @@ namespace Libvirt.CS_Objects
         {
             return API.virDomainUndefineFlags(_DomainPtr, flags);
         }
-        public int virDomainUpdateDeviceFlags(string xml, virDomainDeviceModifyFlags flags)
+        public int virDomainUpdateDeviceFlags(Models.Interface.IXML xml, virDomainDeviceModifyFlags flags)
         {
-            return API.virDomainUpdateDeviceFlags(_DomainPtr, xml, flags);
+            return API.virDomainUpdateDeviceFlags(_DomainPtr, xml.To_XML(), flags);
         }
 
 
         public static Libvirt.virDomainPtr GetPtr(Domain p)
         {
-        
+
             return p._DomainPtr;
         }
         public void Dispose()
