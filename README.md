@@ -1,5 +1,5 @@
 <h3>EXAMPLES:</h3>
-<p>Check out how to use this library here: https://github.com/smasherprog/Libvirt_WebManager AND https://github.com/smasherprog/VM_Manager</p>
+<p>Check out how to use this library here: <br/>https://github.com/smasherprog/Libvirt_WebManager <br/> https://github.com/smasherprog/VM_Manager</p>
 <h3>Library Usage:</h3>
 <ul>
 <li>Libvirt.Pinvoke namespace: is designed to be a 1 to 1 mapping from c# to the libvirt C API maintaining naming convention, parameter, and return values; adding minimal marshaling where possible --Lowest Level, Raw C Calls!
