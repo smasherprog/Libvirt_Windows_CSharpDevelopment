@@ -9,7 +9,7 @@ namespace Libvirt.CS_Objects
     public class Storage_Pool : IDisposable
     {
         private Libvirt.virStoragePoolPtr _Storage_PoolPtr;
-        public bool IsValid { get { return _Storage_PoolPtr.Pointer != IntPtr.Zero; } }
+        public bool IsValid { get { return !_Storage_PoolPtr.IsInvalid; } }
         public Storage_Pool(Libvirt.virStoragePoolPtr ptr)
         {
             _Storage_PoolPtr = ptr;
@@ -54,9 +54,11 @@ namespace Libvirt.CS_Objects
             return API.virStoragePoolGetUUIDString(_Storage_PoolPtr, out buf);
         }
 
-        public string virStoragePoolGetXMLDesc(virStorageXMLFlags flags)
+        public Libvirt.Models.Concrete.Storage_Pool virStoragePoolGetXMLDesc(virStorageXMLFlags flags)
         {
-            return API.virStoragePoolGetXMLDesc(_Storage_PoolPtr, flags);
+            var vm = new Libvirt.Models.Concrete.Storage_Pool();
+            vm.From_XML(System.Xml.Linq.XDocument.Parse(API.virStoragePoolGetXMLDesc(_Storage_PoolPtr, flags)).Root);
+            return vm;
         }
         public int virStoragePoolIsActive()
         {

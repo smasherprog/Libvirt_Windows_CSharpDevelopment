@@ -25,13 +25,12 @@ namespace Libvirt.Models.Concrete
         public List<Boot_Types> BootOrder { get; set; }
         public Guest_OS_Bitness Bitness { get; set; }
         public bool ShowBootMenu { get; set; }
-        private string _machine;
-        public string machine { get { return _machine; }  }
+        public string machine { get; set; }
         public string To_XML()
         {
             var ret = "<os>";
 
-            ret += "<type arch='" + Bitness.ToString() + "'>" + type.ToString() + "</type>";//is everything a pc? I dont know.. 
+            ret += "<type arch='" + Bitness.ToString() + "' machine='"+machine+"'>" + type.ToString() + "</type>";//is everything a pc? I dont know.. 
             foreach (var item in BootOrder)
             {
                 ret += "<boot dev='" + item.ToString() + "'/>";
@@ -51,12 +50,17 @@ namespace Libvirt.Models.Concrete
             BootOrder.Add(Boot_Types.hd);
             Bitness = Guest_OS_Bitness.x86_64;
             ShowBootMenu = false;
+            machine = "pc-i440fx-2.3";
         }
         public void From_XML(System.Xml.Linq.XElement xml)
         {
             Reset();
             var os = xml.Element("os");
-            if (os == null) return;
+            if (os == null)
+            {
+                if (xml.Name == "os") os = xml;
+                else os = null;
+            }
             var element = os.Element("type");
 
             if (element != null)
@@ -69,7 +73,7 @@ namespace Libvirt.Models.Concrete
                     Bitness = b;
                 }
                 attr = element.Attribute("machine");
-                if (attr != null) _machine = attr.Value;
+                if (attr != null) machine = attr.Value;
                   
                 var m = type;
                 Enum.TryParse(element.Value, true, out m);

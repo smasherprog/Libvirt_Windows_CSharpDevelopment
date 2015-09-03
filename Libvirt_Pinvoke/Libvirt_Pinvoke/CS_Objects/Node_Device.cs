@@ -9,7 +9,7 @@ namespace Libvirt.CS_Objects
     public class Node_Device : IDisposable
     {
         private virNodeDevicePtr _virNodeDevicePtr;
-        public bool IsValid { get { return _virNodeDevicePtr.Pointer != IntPtr.Zero; } }
+        public bool IsValid { get { return !_virNodeDevicePtr.IsInvalid; } }
         public Node_Device(virNodeDevicePtr ptr)
         {
             _virNodeDevicePtr = ptr;
@@ -34,13 +34,30 @@ namespace Libvirt.CS_Objects
         {
             return API.virNodeDeviceGetParent(_virNodeDevicePtr);
         }
-        public string virNodeDeviceGetXMLDesc()
+        public Libvirt.Models.Concrete.Node.Device virNodeDeviceGetXMLDesc()
         {
-            return API.virNodeDeviceGetXMLDesc(_virNodeDevicePtr);
+            var root = System.Xml.Linq.XDocument.Parse(API.virNodeDeviceGetXMLDesc(_virNodeDevicePtr)).Root;
+            var t = root.Element("capability");
+            if (t != null)
+            {
+                var attr = t.Attribute("type");
+                if (attr != null)
+                {
+                    var nodetype = (Libvirt.Models.Concrete.Node.Device.Node_Types)Enum.Parse(typeof(Libvirt.Models.Concrete.Node.Device.Node_Types), attr.Value);
+                    if (nodetype == Models.Concrete.Node.Device.Node_Types.storage)
+                    {
+                        var ret = new Libvirt.Models.Concrete.Node.Storage();
+                        ret.From_XML(root);
+                        return ret;
+                    }
+                }
+            }
+            throw new NotImplementedException("Other Node types have not been implemented yet. Use API.virNodeDeviceGetXMLDesc  to get raw string");
+
         }
-        public int virNodeDeviceListCaps(out string[] names,int maxnames)
+        public int virNodeDeviceListCaps(out string[] names, int maxnames)
         {
-            return API.virNodeDeviceListCaps(_virNodeDevicePtr, out names , maxnames);
+            return API.virNodeDeviceListCaps(_virNodeDevicePtr, out names, maxnames);
         }
         public int virNodeDeviceNumOfCaps()
         {

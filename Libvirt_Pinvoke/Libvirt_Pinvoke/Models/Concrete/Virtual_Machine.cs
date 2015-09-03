@@ -21,7 +21,9 @@ namespace Libvirt.Models.Concrete
         public Memory_Allocation Memory { get; set; }
         public Features System_Features { get; set; }
         public Clock_Types clock { get; set; }
+        public Iface Iface { get; set; }
         public Graphics graphics { get; set; }
+        public string emulator { get; set; }
         public Libvirt.Models.Concrete.Drive_Collection Drives { get; set; }
         public string To_XML()
         {
@@ -38,9 +40,10 @@ namespace Libvirt.Models.Concrete
             ret += System_Features.To_XML();
             ret += "<clock offset='" + clock.ToString() + "'></clock>";
             ret += "<devices>";
-            ret += "<emulator>/usr/bin/qemu-system-x86_64</emulator>";//according to http://www.linux-kvm.org/page/RunningKVM  (kvm doesn't make a distinction between i386 and x86_64 so even in i386 you should use `qemu-system-x86_64`
+            ret += "<emulator>"+emulator+"</emulator>";
             ret += Drives.To_XML();
             ret += graphics.To_XML();
+            ret += Iface.To_XML();
             ret += "</devices>";
             ret += "</domain>";
             return ret;
@@ -57,9 +60,11 @@ namespace Libvirt.Models.Concrete
             CPU = new CPU_Layout();
             Memory = new Memory_Allocation();
             System_Features = new Features();
+            Iface = new Iface();
             clock = Clock_Types.utc;// utc for everything except windows which uses localtime
             Drives = new Libvirt.Models.Concrete.Drive_Collection();
             graphics = new Graphics();
+            emulator = "/usr/bin/qemu-system-x86_64";
         }
         public void From_XML(System.Xml.Linq.XElement xml)
         {
@@ -82,17 +87,18 @@ namespace Libvirt.Models.Concrete
                 attr = xml.Attribute("offset");
                 if (attr != null)
                 {
-                    var b = Clock_Types.utc;
-                    Enum.TryParse(attr.Value, true, out b);
-                    clock = b;
+                    clock = (Clock_Types)Enum.Parse(typeof(Clock_Types), attr.Value);
                 }
             }
             element = xml.Element("devices");
             if (element != null)
             {
+                var emul = element.Element("emulator");
+                if (emul != null) emulator = emul.Value;
                 Drives.From_XML(element);
-               graphics.From_XML(element);
-         
+                graphics.From_XML(element);
+                element = element.Element("interface");
+                if (element != null) Iface.From_XML(element);
             }
         }
     }

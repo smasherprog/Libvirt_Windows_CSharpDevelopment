@@ -15,7 +15,26 @@ namespace Libvirt.Models.Concrete
         public Graphic_Types Graphic_Type { get; set; }
         private int _port = -1;
         public Graphics_Listen Graphics_Listen { get; set; }
-        public string listen { get; set; }
+        private string _listen;
+        public string listen
+        {
+            get
+            {
+                return _listen;
+            }
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value)) {
+                    Graphics_Listen = null;
+                    _listen = null;
+                } else
+                {
+                    _listen = value;
+                    Graphics_Listen = new Graphics_Listen() { address = _listen };
+                }
+
+            }
+        }
         public string passwd { get; set; }
         public DateTime? passwdValidTo { get; set; }
         public int? websocket { get; set; }
@@ -46,6 +65,8 @@ namespace Libvirt.Models.Concrete
             _port = -1;
             websocket = -1;
             autoport = true;
+            passwdValidTo = null;
+            passwd = null;
         }
         public string To_XML()
         {
@@ -61,7 +82,7 @@ namespace Libvirt.Models.Concrete
             }
             ret += (!string.IsNullOrWhiteSpace(listen) ? " listen='" + listen + "'" : "");
             ret += (!string.IsNullOrWhiteSpace(passwd) ? " passwd='" + passwd + "'" : "") + (websocket.HasValue ? " websocket='" + websocket.Value.ToString() + "'" : "");
-           // ret += (passwdValidTo.HasValue ? " passwdValidTo='" + passwdValidTo.Value.ToFileTimeUtc() + "'" : "");
+            ret += (passwdValidTo.HasValue ? " passwdValidTo='" + System.DateTime.SpecifyKind(passwdValidTo.Value, System.DateTimeKind.Utc).ToString("yyyy-MM-ddTH:mm:ss") + "'" : "");
             if (Graphics_Listen != null)
             {
                 ret += ">" + Graphics_Listen.To_XML();
@@ -95,6 +116,11 @@ namespace Libvirt.Models.Concrete
         {
             Reset();
             var element = xml.Element("graphics");
+            if (element == null)
+            {
+                if (xml.Name == "graphics") element = xml;
+                else element = null;
+            }
             if (element != null)
             {
                 var type = element.Attribute("type");
@@ -117,6 +143,9 @@ namespace Libvirt.Models.Concrete
                     if (type.Value == "yes") autoport = true;
                     else autoport = false;
                 }
+                type = element.Attribute("passwdValidTo");
+                if (type != null) passwdValidTo = DateTime.ParseExact(type.Value, "yyyy-MM-ddTH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+               
                 type = element.Attribute("passwd");
                 if (type != null) passwd = type.Value;
                 type = element.Attribute("listen");
@@ -136,8 +165,9 @@ namespace Libvirt.Models.Concrete
                     Graphics_Listen = new Graphics_Listen();
                     Graphics_Listen.From_XML(sublisten);
                 }
-            } else Graphic_Type = Graphic_Types.NONE;
-            
+            }
+            else Graphic_Type = Graphic_Types.NONE;
+
         }
     }
 }
